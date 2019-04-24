@@ -51,6 +51,7 @@ void SphereWindow::timerEvent(QTimerEvent *)
 
 void SphereWindow::initialize()
 {
+    std::cout << "SphereWindow::init, innit?" << std::endl;
     glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
 
     // "initShaders"

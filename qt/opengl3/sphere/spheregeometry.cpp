@@ -1,5 +1,6 @@
 #include <QtCore/qmath.h>
 #include "spheregeometry.h"
+#include <iostream>
 
 SphereGeometry::SphereGeometry(QOpenGLShaderProgram *program)
     : pvbo(QOpenGLBuffer::VertexBuffer)
@@ -11,6 +12,8 @@ SphereGeometry::SphereGeometry(QOpenGLShaderProgram *program)
 
 void SphereGeometry::initialize()
 {
+    std::cout << "SphereGeometry::init, innit?" << std::endl;
+
     /////////////////////////////////////////////////////
     // Sphere calculation - the CPU intensive bit
     // draw a sphere to represent a neuron
@@ -50,11 +53,11 @@ void SphereGeometry::initialize()
     this->vao.bind(); // sets the Vertex Array Object current to the OpenGL context so we can write attributes to it
 
     // Binds data from the "C++ world" to the OpenGL shader world for "position"
-    //QOpenGLBuffer this->pvbo(QOpenGLBuffer::VertexBuffer);
-    this->pvbo.create();
-    this->pvbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    this->pvbo.bind();
-    this->pvbo.allocate(vertexPositions.data(), vertexColors.size() * sizeof(float));
+    QOpenGLBuffer _pvbo(QOpenGLBuffer::VertexBuffer);
+    _pvbo.create();
+    _pvbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    _pvbo.bind();
+    _pvbo.allocate(vertexPositions.data(), vertexColors.size() * sizeof(float));
 
     // this labels an attribute "position" that points to the memory
     // slot from the last buffer allocate() the position attribute is
@@ -62,11 +65,11 @@ void SphereGeometry::initialize()
     this->shaderProgram->enableAttributeArray("position");
     this->shaderProgram->setAttributeBuffer("position", GL_FLOAT, 0, 3);
 
-    //QOpenGLBuffer this->cvbo(QOpenGLBuffer::VertexBuffer);
-    this->cvbo.create();
-    this->cvbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    this->cvbo.bind();
-    this->cvbo.allocate(vertexColors.data(), vertexColors.size() * sizeof(float));
+    QOpenGLBuffer _cvbo(QOpenGLBuffer::VertexBuffer);
+    _cvbo.create();
+    _cvbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    _cvbo.bind();
+    _cvbo.allocate(vertexColors.data(), vertexColors.size() * sizeof(float));
 
     // this labels an attribute "color" that points to the memory slot
     // from the last buffer allocate() the color attribute is an input
@@ -75,9 +78,10 @@ void SphereGeometry::initialize()
     this->shaderProgram->setAttributeBuffer("color", GL_FLOAT, 0, 3);
 
     // Release (unbind) all
-    this->pvbo.release();
-    this->cvbo.release();
+    _pvbo.release();
+    _cvbo.release();
     this->vao.release();
+    this->shaderProgram->release();
 }
 
 void SphereGeometry::render ()
