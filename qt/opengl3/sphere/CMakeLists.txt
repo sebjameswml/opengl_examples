@@ -19,11 +19,18 @@ find_package(Qt5Core)
 SET(Main_SRC
 ./main.cpp
 ./spherewindow.cpp
+./spheregeometry.cpp
 ./openglwindow.cpp
 )
 SOURCE_GROUP(Main FILES ${Main_SRC})
 
 INCLUDE_DIRECTORIES(${Sphere_SOURCE_DIR})
+
+# Set a default build type for single-configuration
+# CMake generators if no build type is set.
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+   SET(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG_INIT} -D_DEBUG -D_DRAWGI -Wno-deprecated-declarations")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE_INIT} -D_SECURE_SCL=0 -Wno-deprecated-declarations")
