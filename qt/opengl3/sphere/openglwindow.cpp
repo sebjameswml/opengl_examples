@@ -6,6 +6,11 @@
 #include <QtGui/QOpenGLPaintDevice>
 #include <QtGui/QPainter>
 
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
 //! [1]
 OpenGLWindow::OpenGLWindow(QWindow *parent)
     : QWindow(parent)
@@ -35,6 +40,7 @@ void OpenGLWindow::initialize()
 
 void OpenGLWindow::render()
 {
+    cout << "OpenGLWindow::render() called" << endl;
     if (!m_paint_device) {
         m_paint_device = new QOpenGLPaintDevice;
     }
@@ -101,6 +107,7 @@ void OpenGLWindow::renderNow()
     m_context->makeCurrent(this);
 
     if (needsInitialize) {
+        cout << "OpenGLWindow::renderNow() : NeedsInitialize" << endl;
         initializeOpenGLFunctions();
         initialize();
     }

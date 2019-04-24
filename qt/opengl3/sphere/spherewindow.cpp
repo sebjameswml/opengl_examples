@@ -3,6 +3,9 @@
 #include "spherewindow.h"
 #include <iostream>
 
+using std::cout;
+using std::endl;
+
 SphereWindow::SphereWindow()
 {
 }
@@ -45,19 +48,19 @@ void SphereWindow::timerEvent(QTimerEvent *)
         this->rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
 
         // Request an update
-        this->sphere->render();
+        //this->render();
     }
 }
 
 void SphereWindow::initialize()
 {
-    std::cout << "SphereWindow::init, innit?" << std::endl;
+    cout << "SphereWindow::init, innit?" << endl;
     glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
 
     // "initShaders"
     this->shaderProg = new QOpenGLShaderProgram();
     this->shaderProg->addShaderFromSourceCode (QOpenGLShader::Vertex,
-                                               "#version 450\n"        // GLSL version 1.4 == OpenGL 3.1. GLSL 4.5 == OpenGL 4.5
+                                               "#version 140\n"        // GLSL version 1.4 == OpenGL 3.1. GLSL 4.5 == OpenGL 4.5
                                                "in vec3 position;\n"   // attribute named position with 3 elements per vertex in
                                                "in vec3 color;\n"      // A colour attribute
                                                "out vec4 fragColor;\n" // vec4: a vector of 4 floats
@@ -66,7 +69,7 @@ void SphereWindow::initialize()
                                                " gl_Position = vec4(position, 1.0);\n"
                                                "}\n");
     this->shaderProg->addShaderFromSourceCode (QOpenGLShader::Fragment,
-                                               "#version 450\n" // GLSL version 4.5
+                                               "#version 140\n" // GLSL version 4.5
                                                "in vec4 fragColor;\n"
                                                "out vec4 finalcolor;\n"
                                                "void main() {\n"
@@ -78,6 +81,8 @@ void SphereWindow::initialize()
 
     // Create the sphere geometry
     this->sphere = new SphereGeometry (this->shaderProg);
+
+    cout << "Release shaderProg... (" << (unsigned long long int)this->shaderProg << ")" << endl;
 
     this->shaderProg->release();
 }
@@ -92,4 +97,5 @@ void SphereWindow::render()
     glClear(GL_COLOR_BUFFER_BIT);
 
     this->sphere->render();
+    cout << "sphere->render() returned" << endl;
 }

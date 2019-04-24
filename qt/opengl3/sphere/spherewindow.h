@@ -22,7 +22,7 @@ public:
 
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
-    void timerEvent(QTimerEvent *) override;
+    void timerEvent(QTimerEvent*) override;
 
     void initialize() override;
     void render() override;

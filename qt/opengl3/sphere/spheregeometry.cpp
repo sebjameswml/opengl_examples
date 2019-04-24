@@ -2,6 +2,9 @@
 #include "spheregeometry.h"
 #include <iostream>
 
+using std::cout;
+using std::endl;
+
 SphereGeometry::SphereGeometry(QOpenGLShaderProgram *program)
     : vertexLocation(0)
     , colorLocation(0)
@@ -10,12 +13,13 @@ SphereGeometry::SphereGeometry(QOpenGLShaderProgram *program)
     , cvbo(QOpenGLBuffer::VertexBuffer)
 {
     this->shaderProgram = program;
+    cout << "shaderProgram: " << (unsigned long long int)this->shaderProgram << endl;
     this->initialize();
 }
 
 void SphereGeometry::initialize()
 {
-    std::cout << "SphereGeometry::init, innit?" << std::endl;
+    cout << "SphereGeometry::init, innit?" << endl;
 
     /////////////////////////////////////////////////////
     // Sphere calculation - the CPU intensive bit
@@ -60,7 +64,7 @@ void SphereGeometry::initialize()
     pvbo.create();
     pvbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
     pvbo.bind();
-    pvbo.allocate(vertexPositions.data(), vertexColors.size() * sizeof(float));
+    pvbo.allocate(this->vertexPositions.data(), this->vertexPositions.size() * sizeof(float));
 
     // this labels an attribute "position" that points to the memory
     // slot from the last buffer allocate() the position attribute is
@@ -72,7 +76,7 @@ void SphereGeometry::initialize()
     cvbo.create();
     cvbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
     cvbo.bind();
-    cvbo.allocate(vertexColors.data(), vertexColors.size() * sizeof(float));
+    cvbo.allocate(this->vertexColors.data(), this->vertexColors.size() * sizeof(float));
 
     // this labels an attribute "color" that points to the memory slot
     // from the last buffer allocate() the color attribute is an input
@@ -86,20 +90,24 @@ void SphereGeometry::initialize()
     this->vao.release();
 }
 
-void SphereGeometry::render ()
+void SphereGeometry::render()
 {
-    pvbo.bind();
-    this->shaderProgram->enableAttributeArray("position");
-    this->shaderProgram->setAttributeBuffer("position", GL_FLOAT, 0, 3);
+    //pvbo.bind();
+    //this->shaderProgram->enableAttributeArray("position");
+    //this->shaderProgram->setAttributeBuffer("position", GL_FLOAT, 0, 3);
 
-    cvbo.bind();
-    this->shaderProgram->enableAttributeArray("color");
-    this->shaderProgram->setAttributeBuffer("color", GL_FLOAT, 0, 3);
+    //cvbo.bind();
+    //this->shaderProgram->enableAttributeArray("color");
+    //this->shaderProgram->setAttributeBuffer("color", GL_FLOAT, 0, 3);
 
     // Render using our shader
     this->shaderProgram->bind();
+    cout << "after bind, shaderProgram: " << (unsigned long long int)this->shaderProgram << endl;
     this->vao.bind(); // sets this vertex array object as the one to use.
+
+    cout << "Num triangles is " << this->vertexPositions.size()/3 << endl;
     glDrawArrays(GL_TRIANGLES, 0, this->vertexPositions.size()/3);
+
     this->vao.release();
     this->shaderProgram->release();
 }
