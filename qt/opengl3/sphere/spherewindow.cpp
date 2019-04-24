@@ -77,34 +77,60 @@ void SphereWindow::initialize()
     /////////////////////////////////////////////////////
     // Sphere calculation - the CPU intensive bit
     // draw a sphere to represent a neuron
-    int rings = 20;
-    int segments = 30;
-    float r = 0.6f;
+    int rings = 12;
+    int segments = 12;
+    float r = 1.0f;
     for (int i = 0; i <= rings; i++) {
         double rings0 = M_PI * (-0.5 + (double) (i - 1) / rings);
         double z0  = sin(rings0);
-        double zr0 =  cos(rings0);
+        double r0 =  cos(rings0);
 
         double rings1 = M_PI * (-0.5 + (double) i / rings);
         double z1 = sin(rings1);
-        double zr1 = cos(rings1);
+        double r1 = cos(rings1);
 
-        for (int j = 0; j <= segments; j++) {
+        for (int j = 0; j < segments; j++) {
             double segment = 2 * M_PI * (double) (j - 1) / segments;
             double x = cos(segment);
             double y = sin(segment);
 
-            double x0 = x*zr0*r;
-            double y0 = y*zr0*r;
-            double x1 = x*zr1*r;
-            double y1 = y*zr1*r;
+            double segn = 2 * M_PI * (double) (j) / segments;
+            double xn = cos(segn);
+            double yn = sin(segn);
+
+            // Two triangles per segment
+            double x0 = x*r0*r;
+            double y0 = y*r0*r;
+
+            double x1 = x*r1*r;
+            double y1 = y*r1*r;
+
+            double xn0 = xn*r0*r;
+            double yn0 = yn*r0*r;
+
+            double xn1 = xn*r1*r;
+            double yn1 = yn*r1*r;
+
+
 
             // I'm not rendering enough vertices, but this gets us started...
             this->vertex_push (x0,y0,z0);
-            this->color_push (1.0f, 0.0f, 0.2f);
+            this->color_push (1.0f, 0.2f, 0.0f);
 
             this->vertex_push (x1,y1,z1);
-            this->color_push (0.0f, 1.0f, 0.6f);
+            this->color_push (1.0f, 0.2f, 0.0f);
+
+            this->vertex_push (xn0,yn0,z0);
+            this->color_push (1.0f, 0.2f, 0.0f);
+
+            this->vertex_push (xn0,yn0,z0);
+            this->color_push (0.0f, .2f, 0.6f);
+
+            this->vertex_push (x1,y1,z1);
+            this->color_push (0.0f, .2f, 0.6f);
+
+            this->vertex_push (xn1,yn1,z1);
+            this->color_push (0.0f, .2f, 0.6f);
         }
     }
     ////////////////////////////////////////////////////
