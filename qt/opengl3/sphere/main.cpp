@@ -2,7 +2,7 @@
 #include <QtGui/QMatrix4x4>
 #include <QtGui/QScreen>
 #include <QtCore/qmath.h>
-#include "sphere.h"
+#include "spherewindow.h"
 #include <iostream>
 
 using std::vector;
@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     format.setRenderableType(QSurfaceFormat::OpenGL);
     //format.setProfile( QSurfaceFormat::CoreProfile );
 
-    Sphere window;
+    SphereWindow window;
     window.setFormat(format);
     window.resize(640, 480);
     window.show();

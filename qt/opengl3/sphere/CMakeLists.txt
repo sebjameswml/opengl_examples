@@ -18,9 +18,8 @@ find_package(Qt5Core)
 
 SET(Main_SRC
 ./main.cpp
-./sphere.cpp
+./spherewindow.cpp
 ./openglwindow.cpp
-./openglwindow.h
 )
 SOURCE_GROUP(Main FILES ${Main_SRC})
 

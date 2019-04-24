@@ -1,20 +1,19 @@
-//#include <QtGui/QMatrix4x4>
 #include <QtGui/QScreen>
 #include <QtCore/qmath.h>
-#include "sphere.h"
+#include "spherewindow.h"
 #include <iostream>
 
-Sphere::Sphere()
+SphereWindow::SphereWindow()
 {
 }
 
-void Sphere::mousePressEvent(QMouseEvent *e)
+void SphereWindow::mousePressEvent(QMouseEvent *e)
 {
     // Save mouse press position
     mousePressPosition = QVector2D(e->localPos());
 }
 
-void Sphere::mouseReleaseEvent(QMouseEvent *e)
+void SphereWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     // Mouse release position - mouse press position
     QVector2D diff = QVector2D(e->localPos()) - mousePressPosition;
@@ -33,7 +32,7 @@ void Sphere::mouseReleaseEvent(QMouseEvent *e)
     this->angularSpeed += acc;
 }
 
-void Sphere::timerEvent(QTimerEvent *)
+void SphereWindow::timerEvent(QTimerEvent *)
 {
     // Decrease angular speed (friction)
     this->angularSpeed *= 0.99;
@@ -50,7 +49,7 @@ void Sphere::timerEvent(QTimerEvent *)
     }
 }
 
-void Sphere::initialize()
+void SphereWindow::initialize()
 {
     glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
 
@@ -143,7 +142,7 @@ void Sphere::initialize()
     m_program->release();
 }
 
-void Sphere::render()
+void SphereWindow::render()
 {
     const qreal retinaScale = devicePixelRatio();
     glViewport(0, 0, width() * retinaScale, height() * retinaScale);

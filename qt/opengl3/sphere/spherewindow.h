@@ -1,5 +1,5 @@
-#ifndef _SPHERE_H_
-#define _SPHERE_H_
+#ifndef _SPHEREWINDOW_H_
+#define _SPHEREWINDOW_H_
 
 #include "openglwindow.h"
 #include <QtGui/QOpenGLShaderProgram>
@@ -14,19 +14,20 @@
 #include <vector>
 
 // header style declaration
-class Sphere : public OpenGLWindow
+class SphereWindow : public OpenGLWindow
 {
 public:
-    Sphere();
+    SphereWindow();
 
-    void initialize() Q_DECL_OVERRIDE;
-    void render() Q_DECL_OVERRIDE;
-    void mousePressEvent(QMouseEvent *e) Q_DECL_OVERRIDE;
-    void mouseReleaseEvent(QMouseEvent *e) Q_DECL_OVERRIDE;
-    void timerEvent(QTimerEvent *) override; // or use override keyword?
+    void initialize() override;
+    void render() override;
+    void mousePressEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
+    void timerEvent(QTimerEvent *) override;
 
 private:
-    // Compute positions and colours of vertices for the sphere and store in these:
+    // Compute positions and colours of vertices for the sphere and
+    // store in these:
     std::vector<float> vertexPositions;
     std::vector<float> vertexColors;
 
@@ -57,4 +58,4 @@ private:
     }
 };
 
-#endif // _SPHERE_H_
+#endif // _SPHEREWINDOW_H_
