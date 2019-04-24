@@ -3,7 +3,10 @@
 #include <iostream>
 
 SphereGeometry::SphereGeometry(QOpenGLShaderProgram *program)
-    : pvbo(QOpenGLBuffer::VertexBuffer)
+    : vertexLocation(0)
+    , colorLocation(0)
+    , matrixLocation(0)
+    , pvbo(QOpenGLBuffer::VertexBuffer)
     , cvbo(QOpenGLBuffer::VertexBuffer)
 {
     this->shaderProgram = program;
@@ -53,11 +56,11 @@ void SphereGeometry::initialize()
     this->vao.bind(); // sets the Vertex Array Object current to the OpenGL context so we can write attributes to it
 
     // Binds data from the "C++ world" to the OpenGL shader world for "position"
-    QOpenGLBuffer _pvbo(QOpenGLBuffer::VertexBuffer);
-    _pvbo.create();
-    _pvbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    _pvbo.bind();
-    _pvbo.allocate(vertexPositions.data(), vertexColors.size() * sizeof(float));
+    //QOpenGLBuffer pvbo(QOpenGLBuffer::VertexBuffer);
+    pvbo.create();
+    pvbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    pvbo.bind();
+    pvbo.allocate(vertexPositions.data(), vertexColors.size() * sizeof(float));
 
     // this labels an attribute "position" that points to the memory
     // slot from the last buffer allocate() the position attribute is
@@ -65,11 +68,11 @@ void SphereGeometry::initialize()
     this->shaderProgram->enableAttributeArray("position");
     this->shaderProgram->setAttributeBuffer("position", GL_FLOAT, 0, 3);
 
-    QOpenGLBuffer _cvbo(QOpenGLBuffer::VertexBuffer);
-    _cvbo.create();
-    _cvbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    _cvbo.bind();
-    _cvbo.allocate(vertexColors.data(), vertexColors.size() * sizeof(float));
+    //QOpenGLBuffer cvbo(QOpenGLBuffer::VertexBuffer);
+    cvbo.create();
+    cvbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    cvbo.bind();
+    cvbo.allocate(vertexColors.data(), vertexColors.size() * sizeof(float));
 
     // this labels an attribute "color" that points to the memory slot
     // from the last buffer allocate() the color attribute is an input
@@ -78,14 +81,21 @@ void SphereGeometry::initialize()
     this->shaderProgram->setAttributeBuffer("color", GL_FLOAT, 0, 3);
 
     // Release (unbind) all
-    _pvbo.release();
-    _cvbo.release();
+    pvbo.release();
+    cvbo.release();
     this->vao.release();
-    this->shaderProgram->release();
 }
 
 void SphereGeometry::render ()
 {
+    pvbo.bind();
+    this->shaderProgram->enableAttributeArray("position");
+    this->shaderProgram->setAttributeBuffer("position", GL_FLOAT, 0, 3);
+
+    cvbo.bind();
+    this->shaderProgram->enableAttributeArray("color");
+    this->shaderProgram->setAttributeBuffer("color", GL_FLOAT, 0, 3);
+
     // Render using our shader
     this->shaderProgram->bind();
     this->vao.bind(); // sets this vertex array object as the one to use.

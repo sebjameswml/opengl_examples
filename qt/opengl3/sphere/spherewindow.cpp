@@ -78,10 +78,13 @@ void SphereWindow::initialize()
 
     // Create the sphere geometry
     this->sphere = new SphereGeometry (this->shaderProg);
+
+    this->shaderProg->release();
 }
 
 void SphereWindow::render()
 {
+    std::cout << "SphereWindow::render()" << std::endl;
     const qreal retinaScale = devicePixelRatio();
     glViewport(0, 0, width() * retinaScale, height() * retinaScale);
 
