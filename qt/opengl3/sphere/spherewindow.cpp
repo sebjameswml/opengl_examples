@@ -55,7 +55,7 @@ void SphereWindow::initialize()
 
     m_program = new QOpenGLShaderProgram();
     m_program->addShaderFromSourceCode (QOpenGLShader::Vertex,
-                                        "#version 450\n"        // GLSL version 1.4
+                                        "#version 140\n"        // GLSL version 1.4
                                         "in vec3 position;\n"   // attribute named position with 3 elements per vertex in
                                         "in vec3 color;\n"      // A colour attribute
                                         "out vec4 fragColor;\n" // vec4: a vector of 4 floats
@@ -64,7 +64,7 @@ void SphereWindow::initialize()
                                         " gl_Position = vec4(position, 1.0);\n"
                                         "}\n");
     m_program->addShaderFromSourceCode (QOpenGLShader::Fragment,
-                                        "#version 450\n" //GLSL version 1.4
+                                        "#version 140\n" //GLSL version 1.4
                                         "in vec4 fragColor;\n"
                                         "out vec4 finalcolor;\n"
                                         "void main() {\n"
