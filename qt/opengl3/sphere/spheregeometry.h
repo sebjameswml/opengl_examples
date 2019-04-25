@@ -30,12 +30,9 @@ private:
 
     QOpenGLShaderProgram* shaderProgram;
 
-    GLuint vertexLocation;
-    GLuint colorLocation;
-    GLuint matrixLocation;
-
     QOpenGLVertexArrayObject vao; // Our Vertex Array Object
     QOpenGLBuffer pvbo;           // Our 'positions' Vertex Buffer Object
+    QOpenGLBuffer nvbo;           // Our 'normals' Vertex Buffer Object
     QOpenGLBuffer cvbo;           // Our 'colors' Vertex Buffer Object
 
     void vertex_push (const float& x, const float& y, const float& z, std::vector<float>& vp);

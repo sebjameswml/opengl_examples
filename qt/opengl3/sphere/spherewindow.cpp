@@ -38,7 +38,7 @@ void SphereWindow::mouseReleaseEvent(QMouseEvent *e)
 void SphereWindow::timerEvent(QTimerEvent *)
 {
     // Decrease angular speed (friction)
-    this->angularSpeed *= 0.97;
+    this->angularSpeed *= 0.996;
 
     // Stop rotation when speed goes below threshold
     if (this->angularSpeed < 0.01) {
@@ -69,10 +69,13 @@ void SphereWindow::initialize()
                                                     "#version 140\n"
                                                     "uniform mat4 mvp_matrix;\n"
                                                     "in vec3 position;\n"
+                                                    "in vec3 normalin;\n"
                                                     "in vec3 color;\n"
+                                                    "out vec3 normal;\n"
                                                     "out vec4 fragColor;\n"
                                                     "void main() {\n"
                                                     " fragColor = vec4(color, 1.0);\n"
+                                                    " normal = normalin;\n" // not working, apparently
                                                     " gl_Position = (mvp_matrix * vec4(position, 1.0));\n"
                                                     "}\n")) {
         close();
@@ -96,9 +99,14 @@ void SphereWindow::initialize()
         close();
     }
 
+    // Enable depth buffer
+    //glEnable(GL_DEPTH_TEST);
+
+    // Enable back face culling
+    //glEnable(GL_CULL_FACE);
+
     // Create the sphere geometry. This creates VAO
     this->sphere = new SphereGeometry (this->shaderProg);
-
 
     // Now VAO was created in SphereGeometry object, release shaderProg
     this->shaderProg->release();
@@ -107,7 +115,7 @@ void SphereWindow::initialize()
     this->setPerspective (this->width(), this->height());
 
     // Start the update timer
-    timer.start (12, this);
+    timer.start (1, this);
 }
 
 void SphereWindow::setPerspective (int w, int h)
