@@ -23,6 +23,7 @@ private:
     // Compute positions and colours of vertices for the sphere and
     // store in these:
     std::vector<float> vertexPositions;
+    std::vector<float> vertexNormals;
     std::vector<float> vertexColors;
 
     unsigned int numtri;
@@ -38,8 +39,6 @@ private:
     QOpenGLBuffer cvbo;           // Our 'colors' Vertex Buffer Object
 
     void vertex_push (const float& x, const float& y, const float& z, std::vector<float>& vp);
-    void vertex_push (const float& x, const float& y, const float& z);
-    void color_push (const float& r, const float& g, const float& b);
 };
 
 #endif // _SPHEREGEOMETRY_H_

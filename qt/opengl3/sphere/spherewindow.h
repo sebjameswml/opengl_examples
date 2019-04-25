@@ -8,9 +8,11 @@
 #include <QtGui/QOpenGLBuffer>
 #include <QtGui/QOpenGLVertexArrayObject>
 
+#include <QMatrix4x4>
 #include <QQuaternion>
 #include <QVector2D>
 #include <QMouseEvent>
+#include <QBasicTimer>
 
 #include <vector>
 
@@ -27,11 +29,16 @@ public:
     void initialize() override;
     void render() override;
 
+    void setPerspective (int w, int h);
+
 private:
     QVector2D mousePressPosition;
     QVector3D rotationAxis;
     qreal angularSpeed;
     QQuaternion rotation;
+    QMatrix4x4 projection;
+
+    QBasicTimer timer;
 
     QOpenGLShaderProgram* shaderProg;
     SphereGeometry* sphere;

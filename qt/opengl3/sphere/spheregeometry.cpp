@@ -37,56 +37,61 @@ void SphereGeometry::initialize()
     float r = 1.0f;
     for (int i = 0; i <= rings; i++) {
 
-        double rings0 = M_PI * (-0.5 + (double) (i - 1) / rings);
-        double z0  = sin(rings0);
-        double r0 =  cos(rings0);
+        float rings0 = M_PI * (-0.5 + (float) (i - 1) / rings);
+        float z0  = sin(rings0);
+        float r0 =  cos(rings0);
 
-        double rings1 = M_PI * (-0.5 + (double) i / rings);
-        double z1 = sin(rings1);
-        double r1 = cos(rings1);
+        float rings1 = M_PI * (-0.5 + (float) i / rings);
+        float z1 = sin(rings1);
+        float r1 = cos(rings1);
 
         for (int j = 0; j < segments; j++) {
 
             // "current" segment
-            double segment = 2 * M_PI * (double) (j - 1) / segments;
-            double x = cos(segment);
-            double y = sin(segment);
+            float segment = 2 * M_PI * (float) (j - 1) / segments;
+            float x = cos(segment);
+            float y = sin(segment);
 
             // "next" segment
-            double segn = 2 * M_PI * (double) (j) / segments;
-            double xn = cos(segn);
-            double yn = sin(segn);
+            float segn = 2 * M_PI * (float) (j) / segments;
+            float xn = cos(segn);
+            float yn = sin(segn);
 
             // Two triangles per segment
-            double x0 = x*r0*r;
-            double y0 = y*r0*r;
+            float x0 = x*r0*r;
+            float y0 = y*r0*r;
 
-            double x1 = x*r1*r;
-            double y1 = y*r1*r;
+            float x1 = x*r1*r;
+            float y1 = y*r1*r;
 
-            double xn0 = xn*r0*r;
-            double yn0 = yn*r0*r;
+            float xn0 = xn*r0*r;
+            float yn0 = yn*r0*r;
 
-            double xn1 = xn*r1*r;
-            double yn1 = yn*r1*r;
+            float xn1 = xn*r1*r;
+            float yn1 = yn*r1*r;
 
-            this->vertex_push (x0,y0,z0);
-            this->color_push (1.0f, 0.2f, 0.0f);
+            this->vertex_push (x0, y0, z0, this->vertexPositions);
+            this->vertex_push (1.0f, 0.2f, 0.0f, this->vertexColors);
+            // The vertex normal of a vertex that makes up a sphere is
+            // just a normal vector in the direction of the vertex.
+            this->vertex_push (x0, y0, z0, this->vertexNormals);
 
-            this->vertex_push (x1,y1,z1);
-            this->color_push (1.0f, 0.2f, 0.0f);
+            this->vertex_push (x1, y1, z1, this->vertexPositions);
+            this->vertex_push (1.0f, 0.2f, 0.0f, this->vertexColors);
 
-            this->vertex_push (xn0,yn0,z0);
-            this->color_push (1.0f, 0.2f, 0.0f);
+            this->vertex_push (xn0, yn0, z0, this->vertexPositions);
+            this->vertex_push (1.0f, 0.2f, 0.0f, this->vertexColors);
 
-            this->vertex_push (xn0,yn0,z0);
-            this->color_push (0.0f, .2f, 0.6f);
 
-            this->vertex_push (x1,y1,z1);
-            this->color_push (0.0f, .2f, 0.6f);
 
-            this->vertex_push (xn1,yn1,z1);
-            this->color_push (0.0f, .2f, 0.6f);
+            this->vertex_push (xn0, yn0, z0, this->vertexPositions);
+            this->vertex_push (0.0f, .2f, 0.6f, this->vertexColors);
+
+            this->vertex_push (x1, y1, z1, this->vertexPositions);
+            this->vertex_push (0.0f, .2f, 0.6f, this->vertexColors);
+
+            this->vertex_push (xn1, yn1, z1, this->vertexPositions);
+            this->vertex_push (0.0f, .2f, 0.6f, this->vertexColors);
         }
     }
     // end of sphere calculation
@@ -132,11 +137,11 @@ void SphereGeometry::initialize()
 void SphereGeometry::render()
 {
     // Render using our shader
-    this->shaderProgram->bind();
+//    this->shaderProgram->bind(); // assume bound
     this->vao.bind(); // sets this vertex array object as the one to use.
     glDrawArrays (GL_TRIANGLES, 0, this->numtri);
     this->vao.release();
-    this->shaderProgram->release();
+//    this->shaderProgram->release();
 }
 
 void SphereGeometry::vertex_push (const float& x, const float& y, const float& z, vector<float>& vp)
@@ -144,18 +149,4 @@ void SphereGeometry::vertex_push (const float& x, const float& y, const float& z
     vp.push_back (x);
     vp.push_back (y);
     vp.push_back (z);
-}
-
-void SphereGeometry::vertex_push (const float& x, const float& y, const float& z)
-{
-    this->vertexPositions.push_back (x);
-    this->vertexPositions.push_back (y);
-    this->vertexPositions.push_back (z);
-}
-
-void SphereGeometry::color_push (const float& r, const float& g, const float& b)
-{
-    this->vertexColors.push_back (r);
-    this->vertexColors.push_back (g);
-    this->vertexColors.push_back (b);
 }

@@ -31,6 +31,7 @@ OpenGLWindow::~OpenGLWindow()
 //! [2]
 void OpenGLWindow::render(QPainter *p)
 {
+    cout << "OpenGLWindow::render(QPainter *p) called (unimplemented)" << endl;
     Q_UNUSED(p);
 }
 
@@ -57,6 +58,7 @@ void OpenGLWindow::render()
 //! [3]
 void OpenGLWindow::renderLater()
 {
+    cout << "OpenGLWindow::renderLater() called" << endl;
     if (!m_update_pending) {
         m_update_pending = true;
         QCoreApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
@@ -92,6 +94,7 @@ void OpenGLWindow::exposeEvent(QExposeEvent *event)
 //! [4]
 void OpenGLWindow::renderNow()
 {
+    //cout << "OpenGLWindow::renderNow() called" << endl;
     if (!isExposed()) {
         return;
     }
