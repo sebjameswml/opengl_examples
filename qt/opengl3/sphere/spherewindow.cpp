@@ -54,41 +54,57 @@ void SphereWindow::timerEvent(QTimerEvent *)
 
 void SphereWindow::initialize()
 {
+    initializeOpenGLFunctions();
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+
     cout << "SphereWindow::init, innit?" << endl;
     glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
 
     // "initShaders"
     this->shaderProg = new QOpenGLShaderProgram();
-    this->shaderProg->addShaderFromSourceCode (QOpenGLShader::Vertex,
-                                               "#version 140\n"        // GLSL version 1.4 == OpenGL 3.1. GLSL 4.5 == OpenGL 4.5
-                                               "in vec3 position;\n"   // attribute named position with 3 elements per vertex in
-                                               "in vec3 color;\n"      // A colour attribute
-                                               "out vec4 fragColor;\n" // vec4: a vector of 4 floats
-                                               "void main() {\n"
-                                               " fragColor = vec4(color, 1.0);\n"
-                                               " gl_Position = vec4(position, 1.0);\n"
-                                               "}\n");
-    this->shaderProg->addShaderFromSourceCode (QOpenGLShader::Fragment,
-                                               "#version 140\n" // GLSL version 4.5
-                                               "in vec4 fragColor;\n"
-                                               "out vec4 finalcolor;\n"
-                                               "void main() {\n"
-                                               " finalcolor = fragColor;\n"
-                                               "}\n");
+    // GLSL version 140(1.4) == OpenGL 3.1, GLSL 330(3.3) == OpenGL 3.3, GLSL 450(4.5) == OpenGL 4.5
+    if (!this->shaderProg->addShaderFromSourceCode (QOpenGLShader::Vertex,
+                                                    "#version 140\n"
+                                                    "in vec3 position;\n"   // attribute named position with 3 elements per vertex in
+                                                    "in vec3 color;\n"      // A colour attribute
+                                                    "out vec4 fragColor;\n" // vec4: a vector of 4 floats
+                                                    "void main() {\n"
+                                                    " fragColor = vec4(color, 1.0);\n"
+                                                    " gl_Position = vec4(position, 1.0);\n"
+                                                    "}\n")) {
+        close();
+    }
 
-    this->shaderProg->link();
-    this->shaderProg->bind(); // bind Shader (Do not release until VAO is created)
+    if (!this->shaderProg->addShaderFromSourceCode (QOpenGLShader::Fragment,
+                                                    "#version 140\n"
+                                                    "in vec4 fragColor;\n"
+                                                    "out vec4 finalcolor;\n"
+                                                    "void main() {\n"
+                                                    " finalcolor = fragColor;\n"
+                                                    "}\n")) {
+        close();
+    }
 
-    // Create the sphere geometry
+    if (!this->shaderProg->link()) {
+        close();
+    }
+
+    if (!this->shaderProg->bind()) { // bind Shader (Do not release until VAO is created)
+        close();
+    }
+
+    // Create the sphere geometry. This creates VAO
+    cout << "new SphereGeometry..." << endl;
     this->sphere = new SphereGeometry (this->shaderProg);
 
     cout << "Release shaderProg... (" << (unsigned long long int)this->shaderProg << ")" << endl;
-
     this->shaderProg->release();
 }
 
 void SphereWindow::render()
 {
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+
     std::cout << "SphereWindow::render()" << std::endl;
     const qreal retinaScale = devicePixelRatio();
     glViewport(0, 0, width() * retinaScale, height() * retinaScale);

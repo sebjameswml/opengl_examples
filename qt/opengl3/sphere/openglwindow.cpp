@@ -99,6 +99,7 @@ void OpenGLWindow::renderNow()
     bool needsInitialize = false;
 
     if (!m_context) {
+        cout << "Creating new QOpenGLContext" << endl;
         m_context = new QOpenGLContext(this);
         m_context->setFormat(requestedFormat());
         m_context->create();
