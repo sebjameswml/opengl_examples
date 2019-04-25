@@ -114,8 +114,8 @@ void SphereWindow::initialize()
     // Set the perspective from the width/height
     this->setPerspective (this->width(), this->height());
 
-    // Start the update timer
-    timer.start (1, this);
+    // Start the update timer. Every 8 ms fast enough for 120 Hz screen.
+    timer.start (8, this);
 }
 
 void SphereWindow::setPerspective (int w, int h)
