@@ -12,7 +12,9 @@ SphereGeometry::SphereGeometry(QOpenGLShaderProgram *program)
     , pvbo(QOpenGLBuffer::VertexBuffer)
     , cvbo(QOpenGLBuffer::VertexBuffer)
 {
+    // This call is critical when using a separate "geometry" class like this
     initializeOpenGLFunctions();
+
     this->shaderProgram = program;
     cout << "shaderProgram: " << (unsigned long long int)this->shaderProgram << endl;
     this->initialize();
