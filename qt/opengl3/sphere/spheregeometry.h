@@ -38,6 +38,7 @@ private:
     QOpenGLBuffer cvbo;           // Our 'colors' Vertex Buffer Object
 
     void vertex_push (const float& x, const float& y, const float& z, std::vector<float>& vp);
+    void vertex_push (const float& x, const float& y, const float& z);
     void color_push (const float& r, const float& g, const float& b);
 };
 

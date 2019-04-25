@@ -48,19 +48,21 @@ void SphereWindow::timerEvent(QTimerEvent *)
         this->rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
 
         // Request an update
-        //this->render();
+        this->render();
     }
 }
 
 void SphereWindow::initialize()
 {
     initializeOpenGLFunctions();
-    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+    // One can also get a pointer to OpenGLFunctions:
+    // QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+    // and use them like this:
+    // f->glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
 
-    cout << "SphereWindow::init, innit?" << endl;
-    glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
+    glClearColor (0.0f, 0.5f, 1.0f, 1.0f);
 
-    // "initShaders"
+    // initialize shaders
     this->shaderProg = new QOpenGLShaderProgram();
     // GLSL version 140(1.4) == OpenGL 3.1, GLSL 330(3.3) == OpenGL 3.3, GLSL 450(4.5) == OpenGL 4.5
     if (!this->shaderProg->addShaderFromSourceCode (QOpenGLShader::Vertex,
@@ -94,24 +96,20 @@ void SphereWindow::initialize()
     }
 
     // Create the sphere geometry. This creates VAO
-    cout << "new SphereGeometry..." << endl;
     this->sphere = new SphereGeometry (this->shaderProg);
 
-    cout << "Release shaderProg... (" << (unsigned long long int)this->shaderProg << ")" << endl;
+    // Now VAO was created in SphereGeometry object, release shaderProg
     this->shaderProg->release();
 }
 
 void SphereWindow::render()
 {
-    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
-
-    std::cout << "SphereWindow::render()" << std::endl;
+    cout << "SphereWindow::render()" << endl;
     const qreal retinaScale = devicePixelRatio();
-    glViewport(0, 0, width() * retinaScale, height() * retinaScale);
+    glViewport (0, 0, width() * retinaScale, height() * retinaScale);
 
     // Clear
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear (GL_COLOR_BUFFER_BIT);
 
     this->sphere->render();
-    cout << "sphere->render() returned" << endl;
 }
