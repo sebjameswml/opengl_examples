@@ -66,7 +66,7 @@ void SphereWindow::initialize()
     this->shaderProg = new QOpenGLShaderProgram();
     // GLSL version 140(1.4) == OpenGL 3.1, GLSL 330(3.3) == OpenGL 3.3, GLSL 450(4.5) == OpenGL 4.5
     if (!this->shaderProg->addShaderFromSourceCode (QOpenGLShader::Vertex,
-                                                    "#version 140\n"
+                                                    "#version 330\n"
                                                     "uniform mat4 mvp_matrix;\n"
                                                     "in vec3 position;\n"
                                                     "in vec3 normalin;\n"
@@ -82,7 +82,7 @@ void SphereWindow::initialize()
     }
 
     if (!this->shaderProg->addShaderFromSourceCode (QOpenGLShader::Fragment,
-                                                    "#version 140\n"
+                                                    "#version 330\n"
                                                     "in vec4 fragColor;\n"
                                                     "out vec4 finalcolor;\n"
                                                     "void main() {\n"

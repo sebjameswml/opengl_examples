@@ -14,9 +14,9 @@ int main(int argc, char **argv)
     QSurfaceFormat format;
     format.setDepthBufferSize (4);
     format.setSamples (24);
-    format.setVersion (3, 1);
+    format.setVersion (3, 3);
     format.setRenderableType (QSurfaceFormat::OpenGL);
-    //format.setProfile (QSurfaceFormat::CoreProfile);
+    format.setProfile (QSurfaceFormat::CoreProfile);
 
     SphereWindow window;
     window.setFormat (format);

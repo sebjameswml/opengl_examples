@@ -2,7 +2,7 @@
 #define _SPHEREGEOMETRY_H_
 
 #include <QtGui/QOpenGLShaderProgram>
-#include <QtGui/QOpenGLFunctions_3_1>
+#include <QOpenGLFunctions_3_3_Core>
 #include <QtGui/QOpenGLBuffer>
 #include <QtGui/QOpenGLVertexArrayObject>
 
@@ -10,7 +10,7 @@
 
 // Contains the CPU based computations of the sphere's geometry as
 // triangle vertices.
-class SphereGeometry : protected QOpenGLFunctions_3_1
+class SphereGeometry : protected QOpenGLFunctions_3_3_Core
 {
 public:
     SphereGeometry (QOpenGLShaderProgram *program);
