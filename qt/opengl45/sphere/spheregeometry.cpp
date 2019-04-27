@@ -33,8 +33,8 @@ SphereGeometry::~SphereGeometry()
 void SphereGeometry::initialize()
 {
     // Sphere calculation - calculate location of triangle vertices for the sphere.
-    int rings = 5;
-    int segments = 4;
+    int rings = 18;
+    int segments = 32;
     float r = 1.0f;
     for (int i = 0; i < rings; i++) {
 
