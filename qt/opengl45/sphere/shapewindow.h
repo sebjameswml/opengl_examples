@@ -1,5 +1,5 @@
-#ifndef _SPHEREWINDOW_H_
-#define _SPHEREWINDOW_H_
+#ifndef _SHAPEWINDOW_H_
+#define _SHAPEWINDOW_H_
 
 #include "openglwindow.h"
 #include "spheregeometry.h"
@@ -17,10 +17,11 @@
 #include <vector>
 
 // header style declaration
-class SphereWindow : public OpenGLWindow
+class ShapeWindow : public OpenGLWindow
 {
 public:
-    SphereWindow();
+    ShapeWindow();
+    ~ShapeWindow();
 
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
@@ -44,4 +45,4 @@ private:
     SphereGeometry* sphere;
 };
 
-#endif // _SPHEREWINDOW_H_
+#endif // _SHAPEWINDOW_H_

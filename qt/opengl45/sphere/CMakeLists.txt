@@ -18,7 +18,7 @@ find_package(Qt5Core)
 
 SET(Main_SRC
 ./main.cpp
-./spherewindow.cpp
+./shapewindow.cpp
 ./spheregeometry.cpp
 ./openglwindow.cpp
 )

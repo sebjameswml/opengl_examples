@@ -1,22 +1,28 @@
 #include <QtGui/QScreen>
 #include <QtCore/qmath.h>
-#include "spherewindow.h"
+#include "shapewindow.h"
 #include <iostream>
 
 using std::cout;
 using std::endl;
 
-SphereWindow::SphereWindow()
+ShapeWindow::ShapeWindow()
 {
 }
 
-void SphereWindow::mousePressEvent(QMouseEvent *e)
+ShapeWindow::~ShapeWindow()
+{
+    delete this->sphere;
+    delete this->shaderProg;
+}
+
+void ShapeWindow::mousePressEvent(QMouseEvent *e)
 {
     // Save mouse press position
     mousePressPosition = QVector2D(e->localPos());
 }
 
-void SphereWindow::mouseReleaseEvent(QMouseEvent *e)
+void ShapeWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     // Mouse release position - mouse press position
     QVector2D diff = QVector2D(e->localPos()) - mousePressPosition;
@@ -35,7 +41,7 @@ void SphereWindow::mouseReleaseEvent(QMouseEvent *e)
     this->angularSpeed += acc;
 }
 
-void SphereWindow::timerEvent(QTimerEvent *)
+void ShapeWindow::timerEvent(QTimerEvent *)
 {
     // Decrease angular speed (friction)
     this->angularSpeed *= 0.996;
@@ -52,42 +58,25 @@ void SphereWindow::timerEvent(QTimerEvent *)
     }
 }
 
-void SphereWindow::initialize()
+void ShapeWindow::initialize()
 {
-    initializeOpenGLFunctions();
+    // initializeOpenGLFunctions() is called in OpenGLWindow::renderNow()
+
     // One can also get a pointer to OpenGLFunctions:
     // QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
     // and use them like this:
     // f->glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
 
-    glClearColor (0.8f, 0.8f, 0.8f, 1.0f);
+    glClearColor (0.8f, 0.7f, 0.8f, 1.0f);
 
     // initialize shaders
     this->shaderProg = new QOpenGLShaderProgram();
-    // GLSL version 140(1.4) == OpenGL 3.1, GLSL 330(3.3) == OpenGL 3.3, GLSL 450(4.5) == OpenGL 4.5
-    if (!this->shaderProg->addShaderFromSourceCode (QOpenGLShader::Vertex,
-                                                    "#version 450\n"
-                                                    "uniform mat4 mvp_matrix;\n"
-                                                    "in vec4 position;\n"
-                                                    "in vec4 normalin;\n"
-                                                    "in vec4 color;\n"
-                                                    "out vec4 normal;\n"
-                                                    "out vec4 fragColor;\n"
-                                                    "void main() {\n"
-                                                    " fragColor = color;\n"
-                                                    " normal = normalin;\n" // not working, apparently
-                                                    " gl_Position = (mvp_matrix * position);\n"
-                                                    "}\n")) {
+
+    // Add shaders from files, making it easier to read/modify the shader code
+    if (!this->shaderProg->addShaderFromSourceFile (QOpenGLShader::Vertex, "../vshader.glsl")) {
         close();
     }
-
-    if (!this->shaderProg->addShaderFromSourceCode (QOpenGLShader::Fragment,
-                                                    "#version 450\n"
-                                                    "in vec4 fragColor;\n"
-                                                    "out vec4 finalcolor;\n"
-                                                    "void main() {\n"
-                                                    " finalcolor = fragColor;\n"
-                                                    "}\n")) {
+    if (!this->shaderProg->addShaderFromSourceFile (QOpenGLShader::Fragment, "../fshader.glsl")) {
         close();
     }
 
@@ -100,15 +89,15 @@ void SphereWindow::initialize()
     }
 
     // Enable depth buffer
-    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 
     // Enable back face culling
     //glEnable(GL_CULL_FACE);
 
-    // Create the sphere geometry. This creates VAO
+    // Create the shape geometry. This creates VAO
     this->sphere = new SphereGeometry (this->shaderProg);
 
-    // Now VAO was created in SphereGeometry object, release shaderProg
+    // Now VAO was created in CubeGeometry object, release shaderProg
     this->shaderProg->release();
 
     // Set the perspective from the width/height
@@ -118,21 +107,20 @@ void SphereWindow::initialize()
     timer.start (8, this);
 }
 
-void SphereWindow::setPerspective (int w, int h)
+void ShapeWindow::setPerspective (int w, int h)
 {
     // Calculate aspect ratio
     qreal aspect = qreal(w) / qreal(h ? h : 1);
     // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-    const qreal zNear = 3.0, zFar = 7.0, fov = 45.0;
+    const qreal zNear = 0.5, zFar = 5.0, fov = 85.0;
     // Reset projection
     this->projection.setToIdentity();
     // Set perspective projection
     this->projection.perspective (fov, aspect, zNear, zFar);
 }
 
-void SphereWindow::render()
+void ShapeWindow::render()
 {
-    //cout << "SphereWindow::render()" << endl;
     const qreal retinaScale = devicePixelRatio();
     glViewport (0, 0, this->width() * retinaScale, this->height() * retinaScale);
 
@@ -141,18 +129,20 @@ void SphereWindow::render()
 
     // Calculate model view transformation
     QMatrix4x4 rotmat;
-    rotmat.translate (0.0, 0.0, -0.50);
+    rotmat.translate (0.0, 0.0, -1.50);
     rotmat.rotate (this->rotation);
-    //qDebug() << rotmat;
 
+    // Bind shader program...
     this->shaderProg->bind();
-    // Set modelview-projection matrix
-    this->shaderProg->setUniformValue ("mvp_matrix", /* this->projection * */ rotmat);
 
-    // Clear
-    glClear (GL_COLOR_BUFFER_BIT);
+    // Set modelview-projection matrix
+    this->shaderProg->setUniformValue ("mvp_matrix", this->projection * rotmat);
+
+    // Clear color buffer and **also depth buffer**
+    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     this->sphere->render();
 
+    // ...and release the shaderProg
     this->shaderProg->release();
 }
