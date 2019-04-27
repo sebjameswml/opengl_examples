@@ -49,6 +49,20 @@ void CubeGeometry::initialize()
         0.30f,  0.30f,  0.30f, 1.0f
     };
 
+    float mag = sqrt (3*(0.3*0.3));
+    float normcmp = 0.3/mag;
+    static const float cube_normals[] =
+    {//  x   y   z  _
+        -normcmp, -normcmp, -normcmp, 1.0f,
+        -normcmp, -normcmp,  normcmp, 1.0f,
+        -normcmp,  normcmp, -normcmp, 1.0f,
+        -normcmp,  normcmp,  normcmp, 1.0f,
+        normcmp, -normcmp, -normcmp, 1.0f,
+        normcmp, -normcmp,  normcmp, 1.0f,
+        normcmp,  normcmp, -normcmp, 1.0f,
+        normcmp,  normcmp,  normcmp, 1.0f
+    };
+
     static const float cube_colors[] =
     {//  x   y   z  _
         1.0f, 1.0f, 1.0f, 1.0f,
@@ -84,7 +98,7 @@ void CubeGeometry::initialize()
     // slot from the last buffer allocate() the position attribute is
     // an input to our vertex shader
     this->shaderProgram->enableAttributeArray("ebo");
-    //this->shaderProgram->setAttributeBuffer("ebo", GL_USHORT, 0, 1);
+    //this->shaderProgram->setAttributeBuffer("ebo", GL_USHORT, 0, 1); //??
 
     // Binds data from the "C++ world" to the OpenGL shader world for "position"
     if (this->pvbo.create() == false) {
@@ -102,6 +116,25 @@ void CubeGeometry::initialize()
     this->shaderProgram->enableAttributeArray("position");
     this->shaderProgram->setAttributeBuffer("position", GL_FLOAT, 0, 4);
 
+#if 0
+    // Binds data from the "C++ world" to the OpenGL shader world for "position"
+    if (this->nvbo.create() == false) {
+        cout << "nvbo create failed" << endl;
+    }
+    this->nvbo.setUsagePattern (QOpenGLBuffer::StaticDraw);
+
+    if (this->nvbo.bind() == false) {
+        cout << "nvbo bind failed" << endl;
+    }
+    this->nvbo.allocate (cube_normals, sizeof(cube_normals));
+
+    // this labels an attribute "position" that points to the memory
+    // slot from the last buffer allocate() the position attribute is
+    // an input to our vertex shader
+    this->shaderProgram->enableAttributeArray("normalin");
+    this->shaderProgram->setAttributeBuffer("normalin", GL_FLOAT, 0, 4);
+#endif
+
     this->cvbo.create();
     this->cvbo.setUsagePattern (QOpenGLBuffer::StaticDraw);
     this->cvbo.bind();
@@ -114,21 +147,24 @@ void CubeGeometry::initialize()
     this->shaderProgram->setAttributeBuffer ("color", GL_FLOAT, 0, 4);
 
     // Release (unbind) all
+    //this->ivbo.release(); // ??
     this->pvbo.release();
+#if 0
+    this->nvbo.release();
+#endif
     this->cvbo.release();
     this->vao.release();
 }
 
 void CubeGeometry::render()
 {
-    // Render using our shader
-//    this->shaderProgram->bind(); // assume bound
+    // Render using our shader, which should have been bound in
+    // ShapeWindow::render()
     this->vao.bind(); // sets this vertex array object as the one to use.
     glEnable(GL_PRIMITIVE_RESTART);
     glPrimitiveRestartIndex(0xffff);
     glDrawElements (GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_SHORT, NULL);
     this->vao.release();
-//    this->shaderProgram->release();
 }
 
 void CubeGeometry::vertex_push (const float& x, const float& y, const float& z, vector<float>& vp)

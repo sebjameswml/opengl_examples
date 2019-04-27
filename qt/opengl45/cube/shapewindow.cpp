@@ -10,6 +10,12 @@ ShapeWindow::ShapeWindow()
 {
 }
 
+ShapeWindow::~ShapeWindow()
+{
+    delete this->cube;
+    delete this->shaderProg;
+}
+
 void ShapeWindow::mousePressEvent(QMouseEvent *e)
 {
     // Save mouse press position
@@ -54,40 +60,23 @@ void ShapeWindow::timerEvent(QTimerEvent *)
 
 void ShapeWindow::initialize()
 {
-    initializeOpenGLFunctions();
+    // initializeOpenGLFunctions() is called in OpenGLWindow::renderNow()
+
     // One can also get a pointer to OpenGLFunctions:
     // QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
     // and use them like this:
     // f->glClearColor(0.0f, 0.5f, 1.0f, 1.0f);
 
-    glClearColor (0.8f, 0.8f, 0.8f, 1.0f);
+    glClearColor (0.8f, 0.7f, 0.8f, 1.0f);
 
     // initialize shaders
     this->shaderProg = new QOpenGLShaderProgram();
-    // GLSL version 140(1.4) == OpenGL 3.1, GLSL 330(3.3) == OpenGL 3.3, GLSL 450(4.5) == OpenGL 4.5
-    if (!this->shaderProg->addShaderFromSourceCode (QOpenGLShader::Vertex,
-                                                    "#version 450\n"
-                                                    "uniform mat4 mvp_matrix;\n"
-                                                    "in vec4 position;\n"
-                                                    "in vec4 normalin;\n"
-                                                    "in vec4 color;\n"
-                                                    "out vec4 normal;\n"
-                                                    "out vec4 fragColor;\n"
-                                                    "void main() {\n"
-                                                    " fragColor = color;\n"
-                                                    " normal = normalin;\n" // not working, apparently
-                                                    " gl_Position = (mvp_matrix * position);\n"
-                                                    "}\n")) {
+
+    // Add shaders from files, making it easier to read/modify the shader code
+    if (!this->shaderProg->addShaderFromSourceFile (QOpenGLShader::Vertex, "../vshader.glsl")) {
         close();
     }
-
-    if (!this->shaderProg->addShaderFromSourceCode (QOpenGLShader::Fragment,
-                                                    "#version 450\n"
-                                                    "in vec4 fragColor;\n"
-                                                    "out vec4 finalcolor;\n"
-                                                    "void main() {\n"
-                                                    " finalcolor = fragColor;\n"
-                                                    "}\n")) {
+    if (!this->shaderProg->addShaderFromSourceFile (QOpenGLShader::Fragment, "../fshader.glsl")) {
         close();
     }
 
@@ -100,10 +89,10 @@ void ShapeWindow::initialize()
     }
 
     // Enable depth buffer
-    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 
     // Enable back face culling
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
 
     // Create the cube geometry. This creates VAO
     this->cube = new CubeGeometry (this->shaderProg);
@@ -132,7 +121,6 @@ void ShapeWindow::setPerspective (int w, int h)
 
 void ShapeWindow::render()
 {
-    //cout << "ShapeWindow::render()" << endl;
     const qreal retinaScale = devicePixelRatio();
     glViewport (0, 0, this->width() * retinaScale, this->height() * retinaScale);
 
@@ -143,16 +131,18 @@ void ShapeWindow::render()
     QMatrix4x4 rotmat;
     rotmat.translate (0.0, 0.0, -1.50);
     rotmat.rotate (this->rotation);
-    //qDebug() << rotmat;
 
+    // Bind shader program...
     this->shaderProg->bind();
+
     // Set modelview-projection matrix
     this->shaderProg->setUniformValue ("mvp_matrix", this->projection * rotmat);
 
-    // Clear
-    glClear (GL_COLOR_BUFFER_BIT);
+    // Clear color buffer and **also depth buffer**
+    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     this->cube->render();
 
+    // ...and release the shaderProg
     this->shaderProg->release();
 }

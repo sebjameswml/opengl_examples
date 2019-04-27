@@ -21,6 +21,7 @@ class ShapeWindow : public OpenGLWindow
 {
 public:
     ShapeWindow();
+    ~ShapeWindow();
 
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
