@@ -112,7 +112,7 @@ void ShapeWindow::setPerspective (int w, int h)
     // Calculate aspect ratio
     qreal aspect = qreal(w) / qreal(h ? h : 1);
     // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-    const qreal zNear = 0.5, zFar = 5.0, fov = 85.0;
+    const qreal zNear = 1.5, zFar = 5.0, fov = 45.0;
     // Reset projection
     this->projection.setToIdentity();
     // Set perspective projection
@@ -129,7 +129,7 @@ void ShapeWindow::render()
 
     // Calculate model view transformation
     QMatrix4x4 rotmat;
-    rotmat.translate (0.0, 0.0, -1.50);
+    rotmat.translate (0.0, 0.0, -3.50); // send backwards into distance
     rotmat.rotate (this->rotation);
 
     // Bind shader program...
