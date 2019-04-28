@@ -37,8 +37,8 @@ SphereGeometry::~SphereGeometry()
 void SphereGeometry::initialize()
 {
     // Sphere calculation - calculate location of triangle vertices for the sphere.
-    int rings = 5;
-    int segments = 6;
+    int rings = 100;
+    int segments = 200;
     float r = 1.0f;
 
     this->vertexPositions.clear();
@@ -60,7 +60,10 @@ void SphereGeometry::initialize()
     this->vertex_push (0.0f, 0.0f, z0, this->vertexPositions);
     this->vertex_push (0.0f, 0.0f, -1.0f, this->vertexNormals);
     this->vertex_push (0.5f, 0.1f, 0.0f, this->vertexColors);
+
     GLushort capMiddle = idx++;
+    GLushort ringStartIdx = idx;
+    GLushort lastRingStartIdx = idx;
 
     bool firstseg = true;
     for (int j = 0; j < segments; j++) {
@@ -102,19 +105,13 @@ void SphereGeometry::initialize()
 
 #if 1
     // Now the triangles around the the rings
-    for (int i = 1; i < 2;/*(rings-1);*/ i++) {
+    for (int i = 2; i < rings; i++) {
 
         rings0 = M_PI * (-0.5 + (float) (i) / rings);
         _z0  = sin(rings0);
         z0  = r * _z0;
         r0 =  cos(rings0);
 
-        rings1 = M_PI * (-0.5 + (float) (i+1) / rings);
-        _z1 = sin(rings1);
-        z1 = r * _z1;
-        r1 = cos(rings1);
-
-        GLushort ringstartIdx = idx;
         for (int j = 0; j < segments; j++) {
 
             // "current" segment
@@ -122,16 +119,11 @@ void SphereGeometry::initialize()
             float x = cos(segment);
             float y = sin(segment);
 
-            // Two vertices per segment
+            // One vertex per segment
             float _x0 = x*r0;
             float x0 = _x0*r;
             float _y0 = y*r0;
             float y0 = _y0*r;
-
-            float _x1 = x*r1;
-            float x1 = _x1*r;
-            float _y1 = y*r1;
-            float y1 = _y1*r;
 
             // NB: Only add ONE vertex per segment. ALREADY have the first ring!
             this->vertex_push (x0, y0, z0, this->vertexPositions);
@@ -144,32 +136,63 @@ void SphereGeometry::initialize()
                 this->vertex_push (0.0f, 0.2f, 1.0f, this->vertexColors);
             }
 
-            this->vertex_push (x1, y1, z1, this->vertexPositions);
-            this->vertex_push (_x1, _y1, _z1, this->vertexNormals);
-            if (j%2) {
-                this->vertex_push (0.0f, 0.7f, 0.5f, this->vertexColors);
-            } else {
-                this->vertex_push (0.5f, 0.7f, 0.0f, this->vertexColors);
-            }
-
-            this->indices.push_back (idx++);
-            this->indices.push_back (idx++);
-            this->indices.push_back (idx);
-            this->indices.push_back (idx-1);
             if (j == segments - 1) {
                 // Last vertex is back to the start
-                //this->indices.push_back (ringstartIdx+1);
-                //this->indices.push_back (ringstartIdx);
-            } else {
+                this->indices.push_back (ringStartIdx++);
                 this->indices.push_back (idx);
-                this->indices.push_back (idx+1);
+                this->indices.push_back (lastRingStartIdx);
+                this->indices.push_back (lastRingStartIdx);
+                this->indices.push_back (idx++);
+                this->indices.push_back (lastRingStartIdx+segments);
+            } else {
+                this->indices.push_back (ringStartIdx++);
+                this->indices.push_back (idx);
+                this->indices.push_back (ringStartIdx);
+                this->indices.push_back (ringStartIdx);
+                this->indices.push_back (idx++);
+                this->indices.push_back (idx);
             }
-            cout << "max index: " << idx+1 << endl;
+            cout << "max index: " << idx << endl;
+        }
+        // Move lastRigntStartIdx on
+        lastRingStartIdx += segments;
+    }
+
+#endif
+    cout << "Before bottom cap, lastRingStartIdx = " << lastRingStartIdx << endl;
+
+    // bottom cap
+    rings0 = M_PI * 0.5;
+    _z0  = sin(rings0);
+    z0  = r * _z0;
+    r0 =  cos(rings0);
+    // Push the central point
+    this->vertex_push (0.0f, 0.0f, z0, this->vertexPositions);
+    this->vertex_push (0.0f, 0.0f, 1.0f, this->vertexNormals);
+    this->vertex_push (1.0f, 1.0f, 1.0f, this->vertexColors);
+
+    capMiddle = idx++;
+    cout << "Bottom cap is vertices index " << capMiddle << endl;
+    firstseg = true;
+
+    // No more vertices to push, just do the indices
+    idx = lastRingStartIdx;
+    for (int j = 0; j < segments; j++) {
+        if (j != segments - 1) {
+            this->indices.push_back (capMiddle);
+            this->indices.push_back (idx++);
+            this->indices.push_back (idx);
+        } else {
+            // Last segment
+            this->indices.push_back (capMiddle);
+            this->indices.push_back (idx);
+            this->indices.push_back (lastRingStartIdx);
         }
     }
+
     // end of sphere calculation
-    cout << "vertexPositions coords: " << (this->vertexPositions.size()/3) << endl;
-#endif
+    cout << "Number of vertexPositions coords: " << (this->vertexPositions.size()/3) << endl;
+
     this->vao.create();
     this->vao.bind(); // sets the Vertex Array Object current to the OpenGL context so we can write attributes to it
 
