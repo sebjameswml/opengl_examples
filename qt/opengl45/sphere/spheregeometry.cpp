@@ -34,15 +34,11 @@ SphereGeometry::~SphereGeometry()
     this->vao.destroy();
 }
 
-void SphereGeometry::initialize()
+void SphereGeometry::computeSphere (void)
 {
-    // Sphere calculation - calculate location of triangle vertices for the sphere.
-    int rings = 100;
-    int segments = 200;
-    float r = 1.0f;
-
-    this->vertexPositions.clear();
-
+    int rings = 10;    // each cap is a "ring"
+    int segments = 12; // number of segments in a ring
+    float r = 1.0f;     // sphere radius
     // The indices index
     GLushort idx = 0;
 
@@ -59,7 +55,7 @@ void SphereGeometry::initialize()
     // Push the central point
     this->vertex_push (0.0f, 0.0f, z0, this->vertexPositions);
     this->vertex_push (0.0f, 0.0f, -1.0f, this->vertexNormals);
-    this->vertex_push (0.5f, 0.1f, 0.0f, this->vertexColors);
+    this->vertex_push (0.0f, 0.0f, 0.0f, this->vertexColors);
 
     GLushort capMiddle = idx++;
     GLushort ringStartIdx = idx;
@@ -71,11 +67,6 @@ void SphereGeometry::initialize()
         float x = cos(segment);
         float y = sin(segment);
 
-        rings1 = M_PI * (-0.5 + 1.0f / rings);
-        _z1 = sin(rings1);
-        z1 = r * _z1;
-        r1 = cos(rings1);
-
         float _x1 = x*r1;
         float x1 = _x1*r;
         float _y1 = y*r1;
@@ -83,7 +74,11 @@ void SphereGeometry::initialize()
 
         this->vertex_push (x1, y1, z1, this->vertexPositions);
         this->vertex_push (_x1, _y1, _z1, this->vertexNormals);
-        this->vertex_push (0.0f, 0.4f, 0.5f, this->vertexColors);
+        if (j%2) {
+            this->vertex_push (1.0f, 0.2f, 0.0f, this->vertexColors);
+        } else {
+            this->vertex_push (0.0f, 0.2f, 1.0f, this->vertexColors);
+        }
 
         if (!firstseg) {
             this->indices.push_back (capMiddle);
@@ -94,17 +89,11 @@ void SphereGeometry::initialize()
             firstseg = false;
         }
     }
-    cout << "Last tri is " << capMiddle << "," << idx-1 << "," << idx << "."<<endl;
     this->indices.push_back (capMiddle);
     this->indices.push_back (idx-1);
     this->indices.push_back (capMiddle+1);
 
-    cout << "vertexPositions in cap: " << (vertexPositions.size()/3) << endl;
-    cout << "current idx: " << idx << endl;
-    cout << "indices size: " << indices.size() << endl;
-
-#if 1
-    // Now the triangles around the the rings
+    // Now add the triangles around the rings
     for (int i = 2; i < rings; i++) {
 
         rings0 = M_PI * (-0.5 + (float) (i) / rings);
@@ -152,46 +141,43 @@ void SphereGeometry::initialize()
                 this->indices.push_back (idx++);
                 this->indices.push_back (idx);
             }
-            cout << "max index: " << idx << endl;
         }
-        // Move lastRigntStartIdx on
         lastRingStartIdx += segments;
     }
-
-#endif
-    cout << "Before bottom cap, lastRingStartIdx = " << lastRingStartIdx << endl;
 
     // bottom cap
     rings0 = M_PI * 0.5;
     _z0  = sin(rings0);
     z0  = r * _z0;
     r0 =  cos(rings0);
-    // Push the central point
+    // Push the central point of the bottom cap
     this->vertex_push (0.0f, 0.0f, z0, this->vertexPositions);
     this->vertex_push (0.0f, 0.0f, 1.0f, this->vertexNormals);
     this->vertex_push (1.0f, 1.0f, 1.0f, this->vertexColors);
-
     capMiddle = idx++;
-    cout << "Bottom cap is vertices index " << capMiddle << endl;
     firstseg = true;
-
-    // No more vertices to push, just do the indices
-    idx = lastRingStartIdx;
+    // No more vertices to push, just do the indices for the bottom cap
+    ringStartIdx = lastRingStartIdx;
     for (int j = 0; j < segments; j++) {
         if (j != segments - 1) {
             this->indices.push_back (capMiddle);
-            this->indices.push_back (idx++);
-            this->indices.push_back (idx);
+            this->indices.push_back (ringStartIdx++);
+            this->indices.push_back (ringStartIdx);
         } else {
             // Last segment
             this->indices.push_back (capMiddle);
-            this->indices.push_back (idx);
+            this->indices.push_back (ringStartIdx);
             this->indices.push_back (lastRingStartIdx);
         }
     }
 
     // end of sphere calculation
     cout << "Number of vertexPositions coords: " << (this->vertexPositions.size()/3) << endl;
+}
+
+void SphereGeometry::initialize()
+{
+    this->computeSphere();
 
     this->vao.create();
     this->vao.bind(); // sets the Vertex Array Object current to the OpenGL context so we can write attributes to it
@@ -245,7 +231,7 @@ void SphereGeometry::render()
     this->vao.bind();
 
     // Note: Wireframe mode:
-    glPolygonMode(GL_FRONT, GL_LINE);
+    //glPolygonMode(GL_FRONT, GL_LINE);
 
     // glDrawElements(mode, count, type, GLvoid* indices)
     glDrawElements (GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_SHORT, 0);

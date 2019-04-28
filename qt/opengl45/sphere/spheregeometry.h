@@ -37,6 +37,11 @@ private:
 
     QOpenGLVertexArrayObject vao; // Our Vertex Array Object
 
+    // Sphere calculation - calculate location of triangle vertices
+    // for the sphere. The sphere will be made up of two "caps" of
+    // triangles, and a series of rings.
+    void computeSphere (void);
+
     void vertex_push (const float& x, const float& y, const float& z, vector<float>& vp);
 
     void setupVBO (QOpenGLBuffer& buf, vector<float>& dat, const char* arrayname);
