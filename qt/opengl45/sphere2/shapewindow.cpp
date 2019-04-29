@@ -91,7 +91,7 @@ void ShapeWindow::initialize()
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
 
-    // Enable back face culling
+    // Enable back face culling. That means you can't rotate the object with a rotn matrix though.
     //glEnable(GL_CULL_FACE);
 
     // Create the shape geometry. This creates VAO

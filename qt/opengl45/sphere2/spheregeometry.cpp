@@ -36,9 +36,9 @@ SphereGeometry::~SphereGeometry()
 
 void SphereGeometry::computeSphere (vector<float> positionOffset, GLushort& idx)
 {
-    int rings = 10;    // each cap is a "ring"
-    int segments = 12; // number of segments in a ring
-    float r = 0.05f;     // sphere radius
+    int rings = 6;    // each cap is a "ring"
+    int segments = 8; // number of segments in a ring
+    float r = 0.04f;     // sphere radius
     // The indices index
 
     // First cap, draw as a triangle fan, but record indices so that
@@ -179,15 +179,17 @@ void SphereGeometry::initialize()
     vector<float> po = {{ -2.5f, -2.5f, 0.0f }};
     GLushort idx = 0;
 
-    for (unsigned int a = 0; a < 50; a++) {
+    unsigned int sidelen = 38;
+    for (unsigned int a = 0; a < sidelen; a++) {
         po[0] = -2.5f;
-        for (unsigned int b = 0; b < 50; b++) {
+        for (unsigned int b = 0; b < sidelen; b++) {
             this->computeSphere (po, idx);
             po[0] += 0.1f;
         }
         po[1] += 0.1f;
     }
-
+    cout << "After compute sphere " << (sidelen*sidelen) << " times, we have "
+         << (this->vertexPositions.size()/3) << " vertex coordinates" << endl;
     this->vao.create();
     this->vao.bind(); // sets the Vertex Array Object current to the OpenGL context so we can write attributes to it
 
