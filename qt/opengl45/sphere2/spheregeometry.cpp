@@ -179,7 +179,7 @@ void SphereGeometry::initialize()
     vector<float> po = {{ -2.5f, -2.5f, 0.0f }};
     GLushort idx = 0;
 
-    unsigned int sidelen = 38;
+    unsigned int sidelen = 39;
     for (unsigned int a = 0; a < sidelen; a++) {
         po[0] = -2.5f;
         for (unsigned int b = 0; b < sidelen; b++) {
