@@ -36,16 +36,12 @@ SphereGeometry::~SphereGeometry()
 
 void SphereGeometry::computeSphere (vector<float> positionOffset, GLushort& idx)
 {
-    int rings = 6;    // each cap is a "ring"
-    int segments = 8; // number of segments in a ring
-    float r = 0.04f;     // sphere radius
-    // The indices index
-
     // First cap, draw as a triangle fan, but record indices so that
-    // we only need a single call to glDrawElements.
+    // we only need a single call to glDrawElements. NB: each cap is a
+    // "ring"
     float rings0 = M_PI * -0.5;
     float _z0  = sin(rings0);
-    float z0  = r * _z0 + positionOffset[2];
+    float z0  = this->r * _z0 + positionOffset[2];
     float r0 =  cos(rings0);
     float rings1 = M_PI * (-0.5 + 1.0f / rings);
     float _z1 = sin(rings1);
@@ -176,17 +172,19 @@ void SphereGeometry::computeSphere (vector<float> positionOffset, GLushort& idx)
 
 void SphereGeometry::initialize()
 {
-    vector<float> po = {{ -2.5f, -2.5f, 0.0f }};
+    unsigned int sidelen = 39;
+    float spacing = 0.1f;
+
+    vector<float> po = {{ -(sidelen/2.0f*spacing), -(sidelen/2.0f*spacing), 0.0f }};
     GLushort idx = 0;
 
-    unsigned int sidelen = 39;
     for (unsigned int a = 0; a < sidelen; a++) {
         po[0] = -2.5f;
         for (unsigned int b = 0; b < sidelen; b++) {
             this->computeSphere (po, idx);
-            po[0] += 0.1f;
+            po[0] += spacing;
         }
-        po[1] += 0.1f;
+        po[1] += spacing;
     }
     cout << "After compute sphere " << (sidelen*sidelen) << " times, we have "
          << (this->vertexPositions.size()/3) << " vertex coordinates" << endl;

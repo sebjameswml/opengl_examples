@@ -20,6 +20,11 @@ public:
     void initialize();
     void render();
 
+    // Sphere attributes
+    int rings = 6;
+    int segments = 8; // number of segments in a ring
+    float r = 0.04f;  // sphere radius
+
 private:
     // Compute positions and colours of vertices for the sphere and
     // store in these:
