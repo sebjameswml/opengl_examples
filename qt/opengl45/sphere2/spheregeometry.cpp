@@ -34,7 +34,7 @@ SphereGeometry::~SphereGeometry()
     this->vao.destroy();
 }
 
-void SphereGeometry::computeSphere (vector<float> positionOffset, GLushort& idx)
+void SphereGeometry::computeSphere (vector<float> positionOffset, VBOint& idx)
 {
     // First cap, draw as a triangle fan, but record indices so that
     // we only need a single call to glDrawElements. NB: each cap is a
@@ -52,9 +52,9 @@ void SphereGeometry::computeSphere (vector<float> positionOffset, GLushort& idx)
     this->vertex_push (0.0f, 0.0f, -1.0f, this->vertexNormals);
     this->vertex_push (0.0f, 0.0f, 0.0f, this->vertexColors);
 
-    GLushort capMiddle = idx++;
-    GLushort ringStartIdx = idx;
-    GLushort lastRingStartIdx = idx;
+    VBOint capMiddle = idx++;
+    VBOint ringStartIdx = idx;
+    VBOint lastRingStartIdx = idx;
 
     bool firstseg = true;
     for (int j = 0; j < segments; j++) {
@@ -172,11 +172,11 @@ void SphereGeometry::computeSphere (vector<float> positionOffset, GLushort& idx)
 
 void SphereGeometry::initialize()
 {
-    unsigned int sidelen = 39;
+    unsigned int sidelen = 150;
     float spacing = 0.1f;
 
     vector<float> po = {{ -(sidelen/2.0f*spacing), -(sidelen/2.0f*spacing), 0.0f }};
-    GLushort idx = 0;
+    VBOint idx = 0;
 
     for (unsigned int a = 0; a < sidelen; a++) {
         po[0] = -2.5f;
@@ -188,6 +188,7 @@ void SphereGeometry::initialize()
     }
     cout << "After compute sphere " << (sidelen*sidelen) << " times, we have "
          << (this->vertexPositions.size()/3) << " vertex coordinates" << endl;
+
     this->vao.create();
     this->vao.bind(); // sets the Vertex Array Object current to the OpenGL context so we can write attributes to it
 
@@ -200,10 +201,10 @@ void SphereGeometry::initialize()
     if (this->ivbo.bind() == false) {
         cout << "ivbo bind failed" << endl;
     }
-    int sz = this->indices.size() * sizeof(GLushort);
+    int sz = this->indices.size() * sizeof(VBOint);
     this->ivbo.allocate (indices.data(), sz);
+    this->shaderProgram->setAttributeBuffer("ebo", VBO_ENUM_TYPE, 0, 1);
     this->shaderProgram->enableAttributeArray("ebo");
-    //this->shaderProgram->setAttributeBuffer("ebo", GL_USHORT, 0, 1); //??
 
     // Binds data from the "C++ world" to the OpenGL shader world for
     // "position", "normalin" and "color"
@@ -243,7 +244,7 @@ void SphereGeometry::render()
     //glPolygonMode(GL_FRONT, GL_LINE);
 
     // glDrawElements(mode, count, type, GLvoid* indices)
-    glDrawElements (GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_SHORT, 0);
+    glDrawElements (GL_TRIANGLES, this->indices.size(), VBO_ENUM_TYPE, 0);
 
     this->vao.release();
 }

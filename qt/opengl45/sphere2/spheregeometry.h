@@ -9,6 +9,11 @@
 #include <vector>
 using std::vector;
 
+//typedef GLushort VBOint;
+//#define VBO_ENUM_TYPE GL_UNSIGNED_SHORT
+typedef GLuint VBOint;
+#define VBO_ENUM_TYPE GL_UNSIGNED_INT
+
 // Contains the CPU based computations of the sphere's geometry as
 // triangle vertices.
 class SphereGeometry : protected QOpenGLFunctions_4_5_Core
@@ -22,7 +27,7 @@ public:
 
     // Sphere attributes
     int rings = 6;
-    int segments = 8; // number of segments in a ring
+    VBOint segments = 8; // number of segments in a ring
     float r = 0.04f;  // sphere radius
 
 private:
@@ -33,7 +38,7 @@ private:
     QOpenGLBuffer nvbo;           // normals Vertex Buffer Object
     QOpenGLBuffer cvbo;           // colors Vertex Buffer Object
 
-    vector<GLushort> indices;
+    vector<VBOint> indices;
     vector<float> vertexPositions;
     vector<float> vertexNormals;
     vector<float> vertexColors;
@@ -45,7 +50,7 @@ private:
     // Sphere calculation - calculate location of triangle vertices
     // for the sphere. The sphere will be made up of two "caps" of
     // triangles, and a series of rings.
-    void computeSphere (vector<float> positionOffset, GLushort& idx);
+    void computeSphere (vector<float> positionOffset, VBOint& idx);
 
     void vertex_push (const float& x, const float& y, const float& z, vector<float>& vp);
 
