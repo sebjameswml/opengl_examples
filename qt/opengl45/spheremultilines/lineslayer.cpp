@@ -41,20 +41,106 @@ void LinesLayer::computeLine (const coord& s1, const coord& s2, VBOint& idx)
     float dx = (s2.x - s1.x);
     float dy = (s2.y - s1.y);
     float d = sqrtf (dx*dx + dy*dy);
-    //if (d < 0.5f) {
-    //    cout << "d=" << d << endl;
-    //}
-    if (d < 0.2f) { // Only draw lines between 'close' neurons
-        this->vertex_push (s1.x, s1.y, s1.z, this->vertexPositions);
-        this->vertex_push (0.0f, 0.0f, 0.0f, this->vertexNormals);
-        this->vertex_push (1.0f, 0.0f, 0.0f, this->vertexColors);
-        this->indices.push_back (idx++);
 
-        this->vertex_push (s2.x, s2.y, s2.z, this->vertexPositions);
-        this->vertex_push (0.0f, 0.0f, 0.0f, this->vertexNormals);
-        this->vertex_push (0.0f, 0.0f, 1.0f, this->vertexColors);
-        this->indices.push_back (idx++);
+    float h_over_root3 = this->h / sqrtf (3);
+    float twoh_over_root3 = 2.0f * h_over_root3;
+
+    if (d < 0.4f) { // Only draw lines between 'close' neurons
+
+        // Push all vertices first. Top hex
+        this->vertex_push (s1.x + twoh_over_root3, s1.y, s1.z, this->vertexPositions);
+        this->vertex_push (twoh_over_root3, 0.0f, 0.0f, this->vertexNormals);
+        this->vertex_push (1.0f, 1.0f, 0.0f, this->vertexColors);
+
+        this->vertex_push (s1.x + h_over_root3, s1.y + h, s1.z, this->vertexPositions);
+        this->vertex_push (h_over_root3, h, 0.0f, this->vertexNormals);
+        this->vertex_push (1.0f, 1.0f, 0.0f, this->vertexColors);
+
+        this->vertex_push (s1.x - h_over_root3, s1.y + h, s1.z, this->vertexPositions);
+        this->vertex_push (- h_over_root3, h, 0.0f, this->vertexNormals);
+        this->vertex_push (1.0f, 1.0f, 0.0f, this->vertexColors);
+
+        this->vertex_push (s1.x - twoh_over_root3, s1.y, s1.z, this->vertexPositions);
+        this->vertex_push (-twoh_over_root3, 0.0f, 0.0f, this->vertexNormals);
+        this->vertex_push (1.0f, 1.0f, 0.0f, this->vertexColors);
+
+        this->vertex_push (s1.x - h_over_root3, s1.y - h, s1.z, this->vertexPositions);
+        this->vertex_push (-h_over_root3, -h, 0.0f, this->vertexNormals);
+        this->vertex_push (1.0f, 1.0f, 0.0f, this->vertexColors);
+
+        this->vertex_push (s1.x + h_over_root3, s1.y - h, s1.z, this->vertexPositions);
+        this->vertex_push (h_over_root3, -h, 0.0f, this->vertexNormals);
+        this->vertex_push (1.0f, 1.0f, 0.0f, this->vertexColors);
+
+        // Bottom hex
+        this->vertex_push (s2.x + twoh_over_root3, s2.y, s2.z, this->vertexPositions);
+        this->vertex_push (twoh_over_root3, 0.0f, 0.0f, this->vertexNormals);
+        this->vertex_push (0.0f, 1.0f, 1.0f, this->vertexColors);
+
+        this->vertex_push (s2.x + h_over_root3, s2.y + h, s2.z, this->vertexPositions);
+        this->vertex_push (h_over_root3, h, 0.0f, this->vertexNormals);
+        this->vertex_push (0.0f, 1.0f, 1.0f, this->vertexColors);
+
+        this->vertex_push (s2.x - h_over_root3, s2.y + h, s2.z, this->vertexPositions);
+        this->vertex_push (- h_over_root3, h, 0.0f, this->vertexNormals);
+        this->vertex_push (0.0f, 1.0f, 1.0f, this->vertexColors);
+
+        this->vertex_push (s2.x - twoh_over_root3, s2.y, s2.z, this->vertexPositions);
+        this->vertex_push (-twoh_over_root3, 0.0f, 0.0f, this->vertexNormals);
+        this->vertex_push (0.0f, 1.0f, 1.0f, this->vertexColors);
+
+        this->vertex_push (s2.x - h_over_root3, s2.y - h, s2.z, this->vertexPositions);
+        this->vertex_push (-h_over_root3, -h, 0.0f, this->vertexNormals);
+        this->vertex_push (0.0f, 1.0f, 1.0f, this->vertexColors);
+
+        this->vertex_push (s2.x + h_over_root3, s2.y - h, s2.z, this->vertexPositions);
+        this->vertex_push (h_over_root3, -h, 0.0f, this->vertexNormals);
+        this->vertex_push (0.0f, 1.0f, 1.0f, this->vertexColors);
+
+        this->indices.push_back (idx);
+        this->indices.push_back (idx+6);
+        this->indices.push_back (idx+1);
+        this->indices.push_back (idx+1);
+        this->indices.push_back (idx+7);
+        this->indices.push_back (idx+6);
+
+        this->indices.push_back (idx+1);
+        this->indices.push_back (idx+7);
+        this->indices.push_back (idx+2);
+        this->indices.push_back (idx+2);
+        this->indices.push_back (idx+8);
+        this->indices.push_back (idx+7);
+
+        this->indices.push_back (idx+2);
+        this->indices.push_back (idx+8);
+        this->indices.push_back (idx+3);
+        this->indices.push_back (idx+3);
+        this->indices.push_back (idx+9);
+        this->indices.push_back (idx+8);
+
+        this->indices.push_back (idx+3);
+        this->indices.push_back (idx+9);
+        this->indices.push_back (idx+4);
+        this->indices.push_back (idx+4);
+        this->indices.push_back (idx+10);
+        this->indices.push_back (idx+9);
+
+        this->indices.push_back (idx+4);
+        this->indices.push_back (idx+10);
+        this->indices.push_back (idx+5);
+        this->indices.push_back (idx+5);
+        this->indices.push_back (idx+11);
+        this->indices.push_back (idx+10);
+
+        this->indices.push_back (idx+5);
+        this->indices.push_back (idx+11);
+        this->indices.push_back (idx+0);
+        this->indices.push_back (idx+0);
+        this->indices.push_back (idx+6);
+        this->indices.push_back (idx+11);
     }
+
+    idx += 12;
 }
 
 void LinesLayer::initialize (void)
@@ -125,8 +211,7 @@ void LinesLayer::render(void)
 {
     this->vao.bind();
     // Make lines thick? large glLineWidth seems to make no difference.
-    glLineWidth (1.0f);
-    glDrawElements (GL_LINES, this->indices.size(), VBO_ENUM_TYPE, 0);
+    glDrawElements (GL_TRIANGLES, this->indices.size(), VBO_ENUM_TYPE, 0);
     this->vao.release();
 }
 

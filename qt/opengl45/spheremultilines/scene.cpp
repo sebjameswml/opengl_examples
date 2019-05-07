@@ -29,10 +29,10 @@ void
 Scene::initialize (void)
 {
     // Some times, create a layer, with parameters (sidelength and z position)
-    SphereLayer* l1 = new SphereLayer(this->shaderProgram, 50, 0);
+    SphereLayer* l1 = new SphereLayer(this->shaderProgram, 5, 0);
     this->layers.push_back (l1);
     // Then:
-    SphereLayer* l2 = new SphereLayer(this->shaderProgram, 50, 0.3);
+    SphereLayer* l2 = new SphereLayer(this->shaderProgram, 5, 0.3);
     this->layers.push_back (l2);
 
     // Now do the lines using the two layers of spheres

@@ -195,7 +195,7 @@ void SphereLayer::initialize (void)
     VBOint idx = 0;
 
     for (unsigned int a = 0; a < this->sidelen; a++) {
-        po[0] = -2.5f;
+        po[0] = -(this->sidelen/2.0f*spacing);
         for (unsigned int b = 0; b < this->sidelen; b++) {
             this->computeSphere (po, idx);
             po[0] += spacing;

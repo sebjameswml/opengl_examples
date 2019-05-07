@@ -33,6 +33,9 @@ public:
     //@{
     SphereLayer* sphereLayer1;
     SphereLayer* sphereLayer2;
+
+    //! hex radius - sets line thickness
+    float h = 0.001f;
     //@}
 
 private:
