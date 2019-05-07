@@ -1,23 +1,38 @@
 #include <QtCore/qmath.h>
-#include "spheregeometry.h"
+#include "spherelayer.h"
 #include <iostream>
 
 using std::cout;
 using std::endl;
 using std::vector;
-SphereGeometry::SphereGeometry(QOpenGLShaderProgram *program)
+
+SphereLayer::SphereLayer(QOpenGLShaderProgram *program)
     : ivbo(QOpenGLBuffer::IndexBuffer)
     , pvbo(QOpenGLBuffer::VertexBuffer)
     , nvbo(QOpenGLBuffer::VertexBuffer)
     , cvbo(QOpenGLBuffer::VertexBuffer)
 {
-    // This call is critical when using a separate "geometry" class like this
+    // This call is critical when using a separate "layer" class like this
     initializeOpenGLFunctions();
     this->shaderProgram = program;
     this->initialize();
 }
 
-SphereGeometry::~SphereGeometry()
+SphereLayer::SphereLayer(QOpenGLShaderProgram *program, unsigned int sl, float zpos)
+    : ivbo(QOpenGLBuffer::IndexBuffer)
+    , pvbo(QOpenGLBuffer::VertexBuffer)
+    , nvbo(QOpenGLBuffer::VertexBuffer)
+    , cvbo(QOpenGLBuffer::VertexBuffer)
+{
+    // This call is critical when using a separate "layer" class like this
+    initializeOpenGLFunctions();
+    this->shaderProgram = program;
+    this->sidelen = sl;
+    this->zposition = zpos;
+    this->initialize();
+}
+
+SphereLayer::~SphereLayer()
 {
     if (this->ivbo.isCreated()) {
         this->ivbo.destroy();
@@ -31,26 +46,25 @@ SphereGeometry::~SphereGeometry()
     if (this->cvbo.isCreated()) {
         this->cvbo.destroy();
     }
-    this->vao.destroy();
 }
 
-void SphereGeometry::computeSphere (vector<float> positionOffset, VBOint& idx)
+void SphereLayer::computeSphere (vector<float> positionOffset, VBOint& idx)
 {
     // First cap, draw as a triangle fan, but record indices so that
     // we only need a single call to glDrawElements. NB: each cap is a
     // "ring"
     float rings0 = M_PI * -0.5;
     float _z0  = sin(rings0);
-    float z0  = this->r * _z0 + positionOffset[2];
+    float z0  = this->r * _z0/* + positionOffset[2]*/;
     float r0 =  cos(rings0);
     float rings1 = M_PI * (-0.5 + 1.0f / rings);
     float _z1 = sin(rings1);
-    float z1 = r * _z1 + positionOffset[2];
+    float z1 = r * _z1 /*+ positionOffset[2]*/;
     float r1 = cos(rings1);
     // Push the central point
     this->vertex_push (0.0f + positionOffset[0], 0.0f + positionOffset[1], z0 + positionOffset[2], this->vertexPositions);
     this->vertex_push (0.0f, 0.0f, -1.0f, this->vertexNormals);
-    this->vertex_push (0.0f, 0.0f, 0.0f, this->vertexColors);
+    this->vertex_push (0.0f, 0.0f, 0.0f, this->vertexColors); // Black
 
     VBOint capMiddle = idx++;
     VBOint ringStartIdx = idx;
@@ -63,11 +77,11 @@ void SphereGeometry::computeSphere (vector<float> positionOffset, VBOint& idx)
         float y = sin(segment);
 
         float _x1 = x*r1;
-        float x1 = _x1*r + positionOffset[0];
+        float x1 = _x1*r;
         float _y1 = y*r1;
-        float y1 = _y1*r + positionOffset[1];
+        float y1 = _y1*r ;
 
-        this->vertex_push (x1, y1, z1, this->vertexPositions);
+        this->vertex_push (x1 + positionOffset[0], y1 + positionOffset[1], z1 + positionOffset[2], this->vertexPositions);
         this->vertex_push (_x1, _y1, _z1, this->vertexNormals);
         if (j%2) {
             this->vertex_push (1.0f, 0.2f, 0.0f, this->vertexColors);
@@ -93,7 +107,7 @@ void SphereGeometry::computeSphere (vector<float> positionOffset, VBOint& idx)
 
         rings0 = M_PI * (-0.5 + (float) (i) / rings);
         _z0  = sin(rings0);
-        z0  = r * _z0 + positionOffset[2];
+        z0  = r * _z0/* + positionOffset[2]*/;
         r0 =  cos(rings0);
 
         for (int j = 0; j < segments; j++) {
@@ -105,12 +119,12 @@ void SphereGeometry::computeSphere (vector<float> positionOffset, VBOint& idx)
 
             // One vertex per segment
             float _x0 = x*r0;
-            float x0 = _x0*r + positionOffset[0];
+            float x0 = _x0*r/* + positionOffset[0]*/;
             float _y0 = y*r0;
-            float y0 = _y0*r + positionOffset[1];
+            float y0 = _y0*r/* + positionOffset[1]*/;
 
             // NB: Only add ONE vertex per segment. ALREADY have the first ring!
-            this->vertex_push (x0, y0, z0, this->vertexPositions);
+            this->vertex_push (x0 + positionOffset[0], y0 + positionOffset[1], z0 + positionOffset[2], this->vertexPositions);
             // The vertex normal of a vertex that makes up a sphere is
             // just a normal vector in the direction of the vertex.
             this->vertex_push (_x0, _y0, _z0, this->vertexNormals);
@@ -143,12 +157,12 @@ void SphereGeometry::computeSphere (vector<float> positionOffset, VBOint& idx)
     // bottom cap
     rings0 = M_PI * 0.5;
     _z0  = sin(rings0);
-    z0  = r * _z0;
+    z0  = r * _z0/* + positionOffset[2]*/;
     r0 =  cos(rings0);
     // Push the central point of the bottom cap
     this->vertex_push (0.0f + positionOffset[0], 0.0f + positionOffset[1], z0 + positionOffset[2], this->vertexPositions);
     this->vertex_push (0.0f, 0.0f, 1.0f, this->vertexNormals);
-    this->vertex_push (1.0f, 1.0f, 1.0f, this->vertexColors);
+    this->vertex_push (1.0f, 1.0f, 1.0f, this->vertexColors); // White
     capMiddle = idx++;
     firstseg = true;
     // No more vertices to push, just do the indices for the bottom cap
@@ -170,27 +184,26 @@ void SphereGeometry::computeSphere (vector<float> positionOffset, VBOint& idx)
     cout << "Number of vertexPositions coords: " << (this->vertexPositions.size()/3) << endl;
 }
 
-void SphereGeometry::initialize()
+void SphereLayer::initialize (void)
 {
-    unsigned int sidelen = 150;
     float spacing = 0.1f;
 
-    vector<float> po = {{ -(sidelen/2.0f*spacing), -(sidelen/2.0f*spacing), 0.0f }};
+    vector<float> po = {{ -(this->sidelen/2.0f*spacing), -(this->sidelen/2.0f*spacing), this->zposition }};
     VBOint idx = 0;
 
-    for (unsigned int a = 0; a < sidelen; a++) {
+    for (unsigned int a = 0; a < this->sidelen; a++) {
         po[0] = -2.5f;
-        for (unsigned int b = 0; b < sidelen; b++) {
+        for (unsigned int b = 0; b < this->sidelen; b++) {
             this->computeSphere (po, idx);
             po[0] += spacing;
         }
         po[1] += spacing;
     }
-    cout << "After compute sphere " << (sidelen*sidelen) << " times, we have "
+    cout << "After compute sphere " << (this->sidelen*this->sidelen) << " times, we have "
          << (this->vertexPositions.size()/3) << " vertex coordinates" << endl;
 
     this->vao.create();
-    this->vao.bind(); // sets the Vertex Array Object current to the OpenGL context so we can write attributes to it
+    this->vao.bind();
 
     // Index buffer - slightly different from process to setupVBO
     // (because no setAttributeBuffer call)
@@ -202,7 +215,7 @@ void SphereGeometry::initialize()
         cout << "ivbo bind failed" << endl;
     }
     int sz = this->indices.size() * sizeof(VBOint);
-    this->ivbo.allocate (indices.data(), sz);
+    this->ivbo.allocate (this->indices.data(), sz);
     this->shaderProgram->setAttributeBuffer("ebo", VBO_ENUM_TYPE, 0, 1);
     this->shaderProgram->enableAttributeArray("ebo");
 
@@ -217,10 +230,11 @@ void SphereGeometry::initialize()
     this->pvbo.release();
     this->nvbo.release();
     this->cvbo.release();
+
     this->vao.release();
 }
 
-void SphereGeometry::setupVBO (QOpenGLBuffer& buf, vector<float>& dat, const char* arrayname)
+void SphereLayer::setupVBO (QOpenGLBuffer& buf, vector<float>& dat, const char* arrayname)
 {
     if (buf.create() == false) {
         cout << "VBO create failed" << endl;
@@ -235,21 +249,14 @@ void SphereGeometry::setupVBO (QOpenGLBuffer& buf, vector<float>& dat, const cha
     this->shaderProgram->setAttributeBuffer (arrayname, GL_FLOAT, 0, 3);
 }
 
-void SphereGeometry::render()
+void SphereLayer::render(void)
 {
-    // Render using our shader
     this->vao.bind();
-
-    // Note: Wireframe mode:
-    //glPolygonMode(GL_FRONT, GL_LINE);
-
-    // glDrawElements(mode, count, type, GLvoid* indices)
     glDrawElements (GL_TRIANGLES, this->indices.size(), VBO_ENUM_TYPE, 0);
-
     this->vao.release();
 }
 
-void SphereGeometry::vertex_push (const float& x, const float& y, const float& z, vector<float>& vp)
+void SphereLayer::vertex_push (const float& x, const float& y, const float& z, vector<float>& vp)
 {
     vp.push_back (x);
     vp.push_back (y);

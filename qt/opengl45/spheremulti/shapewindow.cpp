@@ -12,7 +12,7 @@ ShapeWindow::ShapeWindow()
 
 ShapeWindow::~ShapeWindow()
 {
-    delete this->sphere;
+    delete this->thescene;
     delete this->shaderProg;
 }
 
@@ -94,10 +94,10 @@ void ShapeWindow::initialize()
     // Enable back face culling. That means you can't rotate the object with a rotn matrix though.
     //glEnable(GL_CULL_FACE);
 
-    // Create the shape geometry. This creates VAO
-    this->sphere = new SphereGeometry (this->shaderProg);
+    // Create the scene. This creates several spherelayers, each containing VAO and VBOs
+    this->thescene = new Scene (this->shaderProg);
 
-    // Now VAO was created in CubeGeometry object, release shaderProg
+    // Now VAOs were created in scene object, release shaderProg
     this->shaderProg->release();
 
     // Set the perspective from the width/height
@@ -141,7 +141,7 @@ void ShapeWindow::render()
     // Clear color buffer and **also depth buffer**
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    this->sphere->render();
+    this->thescene->render();
 
     // ...and release the shaderProg
     this->shaderProg->release();

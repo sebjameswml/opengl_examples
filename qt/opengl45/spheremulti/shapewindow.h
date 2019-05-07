@@ -2,7 +2,7 @@
 #define _SHAPEWINDOW_H_
 
 #include "openglwindow.h"
-#include "spheregeometry.h"
+#include "scene.h"
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOpenGLBuffer>
@@ -42,7 +42,7 @@ private:
     QBasicTimer timer;
 
     QOpenGLShaderProgram* shaderProg;
-    SphereGeometry* sphere;
+    Scene* thescene;
 };
 
 #endif // _SHAPEWINDOW_H_

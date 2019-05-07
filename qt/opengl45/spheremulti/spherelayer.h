@@ -1,5 +1,5 @@
-#ifndef _SPHEREGEOMETRY_H_
-#define _SPHEREGEOMETRY_H_
+#ifndef _SPHERELAYER_H_
+#define _SPHERELAYER_H_
 
 #include <QtGui/QOpenGLShaderProgram>
 #include <QOpenGLFunctions_4_5_Core>
@@ -9,26 +9,40 @@
 #include <vector>
 using std::vector;
 
-//typedef GLushort VBOint;
-//#define VBO_ENUM_TYPE GL_UNSIGNED_SHORT
 typedef GLuint VBOint;
 #define VBO_ENUM_TYPE GL_UNSIGNED_INT
 
-// Contains the CPU based computations of the sphere's geometry as
-// triangle vertices.
-class SphereGeometry : protected QOpenGLFunctions_4_5_Core
+// Contains the CPU based computations of a layer of spheres as
+// triangle vertices. Contains the VBOs for the layer of spheres.
+class SphereLayer : protected QOpenGLFunctions_4_5_Core
 {
 public:
-    SphereGeometry (QOpenGLShaderProgram *program);
-    ~SphereGeometry();
+    SphereLayer (QOpenGLShaderProgram *program);
+    SphereLayer (QOpenGLShaderProgram *program, unsigned int sl, float zpos);
+    ~SphereLayer();
 
+    /*!
+     * Do the CPU part of the initialisation - compute vertices etc.
+     */
     void initialize();
+
+    /*!
+     * Render the sphere layer.
+     */
     void render();
 
-    // Sphere attributes
+    //! Sphere layer attributes
+    //@{
+    unsigned int sidelen = 150;
+    float zposition = 0.0f;
+    //@}
+
+    //! Sphere attributes (hardcoded for now)
+    //@{
     int rings = 6;
     VBOint segments = 8; // number of segments in a ring
     float r = 0.04f;  // sphere radius
+    //@}
 
 private:
     // Compute positions and colours of vertices for the sphere and
@@ -45,7 +59,7 @@ private:
 
     QOpenGLShaderProgram* shaderProgram;
 
-    QOpenGLVertexArrayObject vao; // Our Vertex Array Object
+    QOpenGLVertexArrayObject vao;
 
     // Sphere calculation - calculate location of triangle vertices
     // for the sphere. The sphere will be made up of two "caps" of
@@ -57,4 +71,4 @@ private:
     void setupVBO (QOpenGLBuffer& buf, vector<float>& dat, const char* arrayname);
 };
 
-#endif // _SPHEREGEOMETRY_H_
+#endif // _SPHERELAYER_H_
