@@ -75,7 +75,7 @@ set(CMAKE_AUTOMOC ON)
 # As moc files are generated in the binary dir, tell CMake to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-find_package(Qt5 COMPONENTS Gui Core REQUIRED)
+find_package(Qt5 COMPONENTS Gui Core Widgets REQUIRED)
 
 #
 # All the library finding is now done. It's time to compile the program.
@@ -93,3 +93,6 @@ add_executable(qtmorph main.cpp morphologica/morph/qt/openglwindow.cpp)
 
 # Link to Qt libraries and to morphologica OpenGL stuff
 target_link_libraries(qtmorph Qt5::Gui Qt5::Core ${MORPH_LIBS_GL})
+
+add_executable(qtwidget widget.cpp)# morphologica/morph/qt/viswidget.cpp)
+target_link_libraries(qtwidget Qt5::Gui Qt5::Widgets Qt5::Core ${MORPH_LIBS_GL})
