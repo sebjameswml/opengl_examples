@@ -86,13 +86,19 @@ include_directories(${qtmorph_SOURCE_DIR})
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG_INIT} -D_DEBUG -D_DRAWGI -Wno-deprecated-declarations")
 #set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE_INIT} -D_SECURE_SCL=0 -Wno-deprecated-declarations")
 
+# I initially had a dedicated qwindow class derived from
+# openglwindow. This would have provided identify functionality to
+# GLFW, but without any benefit from the additional links to Qt. The
+# right way to do Visual/Qt is to have the Visual enclosed in a
+# QWidget, so it can go anywhere in a Qt UI, so I'm proceed with that;
+# see qtwidget, below.
+#
 # Note that we have to compile both our own cpp files (main.cpp) AND
 # the special source file openglwindow.cpp. This is something to do
 # with the auto compilation of moc files and I don't know a way round it.
-add_executable(qtmorph main.cpp morphologica/morph/qt/openglwindow.cpp)
-
+#add_executable(qtmorph main.cpp morphologica/morph/qt/openglwindow.cpp)
 # Link to Qt libraries and to morphologica OpenGL stuff
-target_link_libraries(qtmorph Qt5::Gui Qt5::Core ${MORPH_LIBS_GL})
+#target_link_libraries(qtmorph Qt5::Gui Qt5::Core ${MORPH_LIBS_GL})
 
-add_executable(qtwidget widget.cpp)# morphologica/morph/qt/viswidget.cpp)
+add_executable(qtwidget widget.cpp)
 target_link_libraries(qtwidget Qt5::Gui Qt5::Widgets Qt5::Core ${MORPH_LIBS_GL})
