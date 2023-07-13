@@ -19,6 +19,8 @@ int main (int argc, char **argv)
     auto gv = std::make_unique<morph::GraphVisual<double>> (morph::vec<float>({0,0,0}));
     // This mandatory line of boilerplate code sets the parent pointer in GraphVisual and binds some functions
     widget.v.bindmodel (gv);
+    // Allow 3D
+    gv->twodimensional = false;
     // Data for the x axis. A vvec is like std::vector, but with built-in maths methods
     morph::vvec<double> x;
     // This works like numpy's linspace() (the 3 args are "start", "end" and "num"):
