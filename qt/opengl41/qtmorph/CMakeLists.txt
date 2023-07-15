@@ -65,8 +65,8 @@ set(MORPH_LIBS_GL OpenGL::GL Freetype::Freetype)
 # Qt setup
 #
 
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+#set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR})
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # setup for qt packages
 #http://www.kdab.com/using-cmake-with-qt-5/
@@ -100,5 +100,4 @@ include_directories(${qtmorph_SOURCE_DIR})
 # Link to Qt libraries and to morphologica OpenGL stuff
 #target_link_libraries(qtmorph Qt5::Gui Qt5::Core ${MORPH_LIBS_GL})
 
-add_executable(qtwidget widget.cpp)
-target_link_libraries(qtwidget Qt5::Gui Qt5::Widgets Qt5::Core ${MORPH_LIBS_GL})
+add_subdirectory (app1)
