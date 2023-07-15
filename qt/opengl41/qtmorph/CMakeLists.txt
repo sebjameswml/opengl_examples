@@ -75,6 +75,10 @@ set(CMAKE_AUTOMOC ON)
 # As moc files are generated in the binary dir, tell CMake to always look for includes there:
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+# Also switch these on as they're on in QtCreator-generated projects
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
 find_package(Qt5 COMPONENTS Gui Core Widgets REQUIRED)
 
 #
@@ -100,4 +104,9 @@ include_directories(${qtmorph_SOURCE_DIR})
 # Link to Qt libraries and to morphologica OpenGL stuff
 #target_link_libraries(qtmorph Qt5::Gui Qt5::Core ${MORPH_LIBS_GL})
 
+# Original example program - draws the graph1 example
 add_subdirectory (app1)
+# An empty MainWindow based Qt desktop application
+add_subdirectory (app2)
+# An empty QtWidget based Qt desktop application
+add_subdirectory (app3)
