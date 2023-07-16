@@ -23,8 +23,7 @@ private slots:
     void on_pushButton_clicked();
 
 private:
-    Ui::MainWindow *ui;
-    QWidget *mainparent;
-    //QOpenGLWidget* ovw;
+    Ui::MainWindow* ui = nullptr;
+    QOpenGLWidget* p_vw = nullptr;
 };
 #endif // MAINWINDOW_H

@@ -17,13 +17,16 @@
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>59</x>
-      <y>19</y>
-      <width>671</width>
-      <height>491</height>
+      <x>-1</x>
+      <y>-1</y>
+      <width>801</width>
+      <height>561</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMaximumSize</enum>
+     </property>
      <item>
       <widget class="QPushButton" name="pushButton">
        <property name="text">
@@ -43,13 +46,13 @@
      <height>31</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFIle">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>FIle</string>
+     <string>File</string>
     </property>
     <addaction name="actionQuit"/>
    </widget>
-   <addaction name="menuFIle"/>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionQuit">
