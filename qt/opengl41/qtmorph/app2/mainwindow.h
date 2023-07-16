@@ -15,15 +15,13 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    //void addSpecial (QOpenGLWidget*);
-
-    void myinit();
-
-//private slots:
-//    void on_pushButton_clicked();
+private slots:
+    void on_pushButton_clicked();
 
 private:
+    void myinit();
     Ui::MainWindow *ui;
     QWidget *mainparent;
+    QOpenGLWidget* ovw;
 };
 #endif // MAINWINDOW_H
