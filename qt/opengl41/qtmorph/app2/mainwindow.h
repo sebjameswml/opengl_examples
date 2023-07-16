@@ -7,6 +7,8 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+namespace morph { class Visual; }
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -14,14 +16,15 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void viswidget_init();
+    static void buildmodels (morph::Visual* _v);
 
 private slots:
     void on_pushButton_clicked();
 
 private:
-    void myinit();
     Ui::MainWindow *ui;
     QWidget *mainparent;
-    QOpenGLWidget* ovw;
+    //QOpenGLWidget* ovw;
 };
 #endif // MAINWINDOW_H

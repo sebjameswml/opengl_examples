@@ -10,7 +10,9 @@ int main (int argc, char **argv)
 
     // Create widget.
     morph::qt::viswidget widget;
-    // Calling show ensures initializeGL() method gets called
+    // Calling show ensures initializeGL() method gets called. The alternative to
+    // calling show() at the start of the main() function, is to set viswidget's
+    // buildmodels callback (see app2).
     widget.show();
 
     // We can now add VisualModels to the Visual inside the Widget. Create a GraphVisual
