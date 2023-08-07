@@ -4,8 +4,8 @@
 #include <morph/qt/viswidget.h>
 #include <morph/GraphVisual.h>
 #include <morph/TriangleVisual.h>
-//#include <morph/HexGrid.h>
-//#include <morph/HexGridVisual.h>
+#include <morph/HexGrid.h>
+#include <morph/HexGridVisual.h>
 #include <morph/ScatterVisual.h>
 #include <morph/Scale.h>
 #include <morph/vec.h>
@@ -21,90 +21,48 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->viswidget_init();
+
+    // Call a function to set up a first VisualModel in the viswidget
+    this->setupHexGridVisual();
 }
 
 MainWindow::~MainWindow() { delete ui; }
 
-// This gets called by viswidget via a callback, with a guarantee that the GL environment has been set up
-void MainWindow::buildmodels (morph::Visual* _v)
+void MainWindow::setupHexGridVisual()
 {
-#if 0
-    morph::HexGrid hg(0.01f, 3.0f, 0.0f);
-    hg.setCircularBoundary (0.6f);
-    // Make some dummy data (a sine wave) to make an interesting surface
-    morph::vvec<float> data(hg.num(), 0.0f);
-    for (unsigned int ri=0; ri<hg.num(); ++ri) {
-        data[ri] = 0.05f + 0.05f*std::sin(20.0f*hg.d_x[ri]) * std::sin(10.0f*hg.d_y[ri]) ; // Range 0->1
+    // First set up the HexGrid
+    this->hg = std::make_unique<morph::HexGrid> (0.01f, 3.0f, 0.0f);
+    this->hg->setCircularBoundary (0.6f);
+
+    // Make some dummy data (with sine waves) to make a non-flat surface
+    this->data.resize (this->hg->num(), 0.0f);
+    for (unsigned int ri=0; ri<this->hg->num(); ++ri) {
+        this->data[ri] = 0.05f + 0.05f*std::sin(20.0f*hg->d_x[ri]) * std::sin(10.0f*hg->d_y[ri]) ; // Range 0->1
     }
+
+    // Now create the HexGridVisual
     morph::vec<float, 3> offset = { 0.0f, -0.05f, 0.0f };
-    auto hgv = std::make_unique<morph::HexGridVisual<float>>(&hg, offset);
-    _v.bindmodel (hgv);
-    hgv->setScalarData (&data);
-    hgv->hexVisMode = morph::HexVisMode::HexInterp; // Or morph::HexVisMode::Triangles for a smoother surface plot
-    hgv->finalize();
-    _v.addVisualModel (hgv);
+    auto hgv = std::make_unique<morph::HexGridVisual<float>>(hg.get(), offset);
 
-#else
-# if 1
-    morph::vec<float, 3> offset = { 0.0, 0.0, 0.0 };
-    morph::Scale<float> scale;
-    scale.setParams (1.0, 0.0);
+    // In general, you need to bindmodel before calling finalize() (esp. for
+    // VisualModels that do text, like a GraphVisual). This gives the VisualModel access
+    // to shader progs from the Visual environment, and allows the VisualModel to know
+    // its parent Visual.
+    static_cast<morph::qt::viswidget*>(this->p_vw)->v.bindmodel (hgv);
 
-    // Note use of morph::vvecs here, which can be passed into
-    // VisualDataModel::setDataCoords(std::vector<vec<float>>* _coords)
-    // and setScalarData(const std::vector<T>* _data)
-    // This is possible because morph::vvec derives from std::vector.
-    morph::vvec<morph::vec<float, 3>> points(20*20);
-    morph::vvec<float> data(20*20);
-    size_t k = 0;
-    for (int i = -10; i < 10; ++i) {
-        for (int j = -10; j < 10; ++j) {
-            float x = 0.1*i;
-            float y = 0.1*j;
-            // z is some function of x, y
-            float z = x * std::exp(-(x*x) - (y*y));
-            points[k] = {x, y, z};
-            data[k] = z;
-            k++;
-        }
-    }
+    // Give the HexGridVisual access to the scalar data for the surface
+    hgv->setScalarData (&this->data);
 
-    auto sv = std::make_unique<morph::ScatterVisual<float>> (offset);
-    _v->bindmodel (sv);
-    sv->setDataCoords (&points);
-    sv->setScalarData (&data);
-    sv->radiusFixed = 0.03f;
-    sv->colourScale = scale;
-    sv->cm.setType (morph::ColourMapType::Plasma);
-    sv->finalize();
-    _v->addVisualModel (sv);
-
-# else
-    auto gv = std::make_unique<morph::GraphVisual<double>> (morph::vec<float>({0,0,0}));
-    // This mandatory line of boilerplate code sets the parent pointer in GraphVisual and binds some functions
-    _v->bindmodel (gv);
-    // Allow 3D
-    gv->twodimensional = false;
-    // Data for the x axis. A vvec is like std::vector, but with built-in maths methods
-    morph::vvec<double> x;
-    // This works like numpy's linspace() (the 3 args are "start", "end" and "num"):
-    x.linspace (-0.5, 0.8, 14);
-    // Set a graph up of y = x^3
-    gv->setdata (x, x.pow(3));
-    // finalize() makes the GraphVisual compute the vertices of the OpenGL model
-    gv->finalize();
-    // Add the GraphVisual OpenGL model to the Visual scene, transferring ownership of the unique_ptr
-    _v->addVisualModel (gv);
-# endif
-#endif
+    // Now add the HexGridVisual model to newvisualmodels. It has to be cast to a plain morph::VisualModel first:
+    std::unique_ptr<morph::VisualModel> vmp = std::move (hgv);
+    // The vector of VisualModels lives in viswidget, accessible via p_vw:
+    static_cast<morph::qt::viswidget*>(this->p_vw)->newvisualmodels.push_back (std::move(vmp));
 }
 
 void MainWindow::viswidget_init()
 {
     // Create widget. Seems to open in its own window with a new context.
     morph::qt::viswidget* vw = new morph::qt::viswidget (this->parentWidget());
-    // Set callback on vm
-    vw->buildmodels = &MainWindow::buildmodels;
     // Choose lighting effects if you want
     vw->v.lightingEffects();
     // Add the OpenGL widget to the UI.
@@ -115,16 +73,24 @@ void MainWindow::viswidget_init()
 
 void MainWindow::on_pushButton_clicked()
 {
-    std::cout << "click\n";
-#if 0 // This gets created, but with dodgy fonts.
-    auto gv = std::make_unique<morph::GraphVisual<double>> (morph::vec<float>({1.5,0,0}));
-    // Access to viswidget via ui:
+    std::cout << "Adding a GraphVisual...\n";
+
+    auto gv = std::make_unique<morph::GraphVisual<double>> (this->graphlocn);
+    // Bind the new (Graph)VisualModel to the morph::Visual associated with the viswidget
     static_cast<morph::qt::viswidget*>(this->p_vw)->v.bindmodel (gv);
+
     gv->twodimensional = false;
     morph::vvec<double> x;
     x.linspace (-1.5, 1.5, 25);
     gv->setdata (x, x.pow(2));
-    gv->finalize();
-    static_cast<morph::qt::viswidget*>(this->p_vw)->v.addVisualModel (gv);
-#endif
+
+    // Cast and add
+    std::unique_ptr<morph::VisualModel> vmp = std::move (gv);
+    static_cast<morph::qt::viswidget*>(this->p_vw)->newvisualmodels.push_back (std::move(vmp));
+
+    // request a render, otherwise it won't appear until user interacts with window
+    this->p_vw->update();
+
+    // Change the graphlocn so that the next graph shows up in a different place
+    this->graphlocn[1] += 1.2f;
 }
