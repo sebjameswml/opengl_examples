@@ -26,9 +26,19 @@ MainWindow::MainWindow(QWidget *parent)
     // Call a function to set up a first VisualModel in the viswidget
     this->setupHexGridVisual();
 
-    // Example timer to carry out computations
+    // Example timer to carry out computations. Here, a lambda function modifies the data that's visualised on the HexGrid
     auto timer = new QTimer(parent);
-    connect(timer, &QTimer::timeout, []{ std::cout << "Computer work, computer work\n"; });
+    connect(timer, &QTimer::timeout, [this]{
+                                         for (unsigned int hi=0; hi<this->hg->num(); ++hi) {
+                                             this->r[hi] = std::sqrt (hg->d_x[hi]*hg->d_x[hi] + hg->d_y[hi]*hg->d_y[hi]);
+                                             this->data[hi] = std::sin(k*r[hi])/k*r[hi];
+                                         }
+                                         this->k += 0.02f;
+                                         if (this->k > 8.0f) { this->k = 1.0f; }
+                                         // Somehow access the pointer for the model. Like this:
+                                         static_cast<morph::qt::viswidget*>(this->p_vw)->needs_reinit = 0;
+                                         this->p_vw->update();
+                                     });
     timer->start();
 }
 
@@ -37,13 +47,16 @@ MainWindow::~MainWindow() { delete ui; }
 void MainWindow::setupHexGridVisual()
 {
     // First set up the HexGrid
-    this->hg = std::make_unique<morph::HexGrid> (0.01f, 3.0f, 0.0f);
-    this->hg->setCircularBoundary (0.6f);
+    this->hg = std::make_unique<morph::HexGrid> (0.02f, 15.0f, 0.0f);
+    this->hg->setCircularBoundary (4.0f);
 
-    // Make some dummy data (with sine waves) to make a non-flat surface
+    // Make some dummy data (a radially symmetric Bessel fn) to make an interesting surface
     this->data.resize (this->hg->num(), 0.0f);
-    for (unsigned int ri=0; ri<this->hg->num(); ++ri) {
-        this->data[ri] = 0.05f + 0.05f*std::sin(20.0f*hg->d_x[ri]) * std::sin(10.0f*hg->d_y[ri]) ; // Range 0->1
+    this->r.resize (this->hg->num(), 0.0f);
+    this->k = 1.0f;
+    for (unsigned int hi=0; hi<this->hg->num(); ++hi) {
+        this->r[hi] = std::sqrt (hg->d_x[hi]*hg->d_x[hi] + hg->d_y[hi]*hg->d_y[hi]);
+        this->data[hi] = std::sin(k*r[hi])/k*r[hi];
     }
 
     // Now create the HexGridVisual
